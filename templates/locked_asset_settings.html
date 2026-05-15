@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4" style="color: #ff6b35;">Business Settings</h1>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-sliders-h"></i> Persistent Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('locked_asset_settings') }}">
+                    <div class="mb-3">
+                        <label for="equity" class="form-label">
+                            <i class="fas fa-chart-pie"></i> Equity (Main Capital)
+                        </label>
+                        <input type="number" step="0.01" class="form-control" id="equity" name="equity" 
+                               value="{{ equity }}" required>
+                        <small class="text-muted">Your main capital or total working funds</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="locked_asset" class="form-label">
+                            <i class="fas fa-lock"></i> Total Locked Asset
+                        </label>
+                        <input type="number" step="0.01" class="form-control" id="locked_asset" name="locked_asset" 
+                               value="{{ locked_asset }}" required>
+                        <small class="text-muted">USDT or assets locked on exchanges for verified badges</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ref_rate" class="form-label">
+                            <i class="fas fa-percent"></i> Reference Rate
+                        </label>
+                        <input type="number" step="0.01" class="form-control" id="ref_rate" name="ref_rate" 
+                               value="{{ ref_rate }}" required>
+                        <small class="text-muted">The last rate used on the final day of the previous month</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save All Settings
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <!-- Orange card with black text -->
+        <div class="card bg-primary text-dark">
+            <div class="card-body">
+                <h5 class="card-title text-dark">
+                    <i class="fas fa-info-circle"></i> Current Values
+                </h5>
+                <hr class="bg-dark">
+                <p><strong><i class="fas fa-chart-pie"></i> Equity:</strong> <strong>${{ "%.2f"|format(equity) }}</strong></p>
+                <p><strong><i class="fas fa-lock"></i> Locked Asset:</strong> <strong>${{ "%.2f"|format(locked_asset) }}</strong></p>
+                <p><strong><i class="fas fa-percent"></i> Reference Rate:</strong> <strong>{{ "%.2f"|format(ref_rate) }}</strong></p>
+                <hr class="bg-dark">
+                <p class="small mb-0 text-dark">
+                    <i class="fas fa-clock"></i> These values persist across calculations and are used as defaults in the calculation form.
+                </p>
+            </div>
+        </div>
+        
+        <div class="card mt-3 bg-secondary">
+            <div class="card-body">
+                <h6><i class="fas fa-lightbulb" style="color: #ff6b35;"></i> How it works:</h6>
+                <ul class="small">
+                    <li>Equity is your main capital that stays relatively constant</li>
+                    <li>Update these values whenever your business fundamentals change</li>
+                    <li>These values will auto-populate in the calculation form</li>
+                    <li>Each calculation still stores the equity value used at that time</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

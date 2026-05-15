@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4" style="color: #ff6b35;">Foreign Funds Management</h1>
+
+<div class="row">
+    <div class="col-md-5 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0" style="color: #000000;">Add New Foreign Fund</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('add_foreign_fund') }}">
+                    <div class="mb-3">
+                        <label for="person_name" class="form-label">Person/Source Name</label>
+                        <input type="text" class="form-control" id="person_name" name="person_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="note" class="form-label">Note/Description</label>
+                        <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Fund</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7 mb-4">
+        <div class="card">
+            <div class="card-header bg-success" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;">
+                <h5 class="mb-0" style="color: #ffffff;">Active Foreign Funds</h5>
+            </div>
+            <div class="card-body">
+                {% if active_funds %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Person/Source</th>
+                                    <th>Amount</th>
+                                    <th>Date Added</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fund in active_funds %}
+                                <tr>
+                                    <td style="color: #ffffff;">{{ fund.person_name }}</td>
+                                    <td style="color: #ff6b35; font-weight: bold;">GHS{{ "%.2f"|format(fund.amount) }}</td>
+                                    <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('delete_foreign_fund', id=fund.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this fund?')">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No active foreign funds.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if settled_funds %}
+        <div class="card mt-4">
+            <div class="card-header bg-secondary">
+                <h5 class="mb-0" style="color: #ffffff;">Settled Foreign Funds</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Person</th>
+                                <th>Amount</th>
+                                <th>Note</th>
+                                <th>Date Settled</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fund in settled_funds %}
+                            <tr>
+                                <td style="color: #ffffff;">{{ fund.person_name }}</td>
+                                <td style="color: #ff6b35; font-weight: bold;">GHS{{ "%.2f"|format(fund.amount) }}</td>
+                                <td style="color: #ffffff;">{{ fund.note[:50] }}</td>
+                                <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

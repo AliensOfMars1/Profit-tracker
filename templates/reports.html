@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4" style="color: #ff6b35;">Reports</h1>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card bg-success">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #ffffff;">Current Month Profit</h5>
+                <h2 style="color: #ffffff;">${{ "%.2f"|format(current_month_profit) }}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card bg-info">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000;">Average Daily Profit</h5>
+                <h2 style="color: #000000;">${{ "%.2f"|format(avg_daily_profit) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card bg-warning">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000;">Projected Monthly Profit</h5>
+                <h2 style="color: #000000;">${{ "%.2f"|format(projected_profit) }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0" style="color: #000000;">Monthly Profit History</h5>
+    </div>
+    <div class="card-body">
+        {% if monthly_profits %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            <th>Profit</th>
+                            <th>Date of Calculation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for calc in monthly_profits %}
+                        <tr>
+                            <td style="color: #ffffff;">{{ calc.year }}</td>
+                            <td style="color: #ffffff;">{{ calc.month }}</td>
+                            <td style="color: #ff6b35; font-weight: bold;">${{ "%.2f"|format(calc.profit) }}</td>
+                            <td style="color: #ffffff;">{{ calc.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No calculations found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-dark">
+        <h5 class="mb-0" style="color: #ffffff;">Annual Profit Summary</h5>
+    </div>
+    <div class="card-body">
+        {% if annual_summary %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Total Annual Profit</th>
+                            <th>Months with Data</th>
+                            <th>Average Monthly Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for year, data in annual_summary.items()|sort(reverse=true) %}
+                        <tr>
+                            <td style="color: #ffffff;">{{ year }}</td>
+                            <td style="color: #ff6b35; font-weight: bold;">${{ "%.2f"|format(data.total_profit) }}</td>
+                            <td style="color: #ffffff;">{{ data.months_count }}</td>
+                            <td style="color: #ffffff;">${{ "%.2f"|format(data.total_profit / data.months_count) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No data available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

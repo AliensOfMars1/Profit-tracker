@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>P2P Profit Tracker - Secure Access</title>
+    <style>
+        body {
+            overflow: hidden;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* PIN Button - Bottom Center on Mobile, Top Right on Desktop */
+        .pin-button {
+            position: fixed;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            color: white;
+            font-weight: bold;
+            gap: 8px;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .pin-button {
+                top: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                font-size: 24px;
+            }
+            .pin-button span {
+                display: none;
+            }
+        }
+        
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .pin-button {
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: auto;
+                height: 48px;
+                border-radius: 50px;
+                padding: 0 24px;
+                font-size: 16px;
+                gap: 8px;
+                animation: bounce 2s infinite;
+            }
+            .pin-button i {
+                font-size: 18px;
+            }
+            .pin-button span {
+                display: inline;
+            }
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        .pin-button:hover {
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* PIN Modal */
+        .pin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        
+        .pin-modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .pin-card {
+            background: rgba(25, 25, 35, 0.95);
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .pin-card h2 {
+            color: white;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .pin-card p {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .pin-card input {
+            width: 100%;
+            padding: 15px;
+            font-size: 28px;
+            text-align: center;
+            letter-spacing: 12px;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        
+        .pin-card input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pin-card input.error {
+            border-color: #ef4444;
+            animation: shake 0.3s ease;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .pin-card button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .pin-card button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .pin-card button:active {
+            transform: translateY(0);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        
+        .close-modal:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        
+        /* Flash messages */
+        .flash-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2002;
+            animation: slideInRight 0.3s ease;
+            max-width: 90%;
+        }
+        
+        @media (max-width: 768px) {
+            .flash-message {
+                top: auto;
+                bottom: 80px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .alert {
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        /* Touch improvements for mobile */
+        @media (max-width: 768px) {
+            .pin-card {
+                padding: 30px 25px;
+                width: 85%;
+            }
+            
+            .pin-card input {
+                font-size: 24px;
+                letter-spacing: 8px;
+                padding: 14px;
+            }
+            
+            .pin-card h2 {
+                font-size: 24px;
+            }
+            
+            .pin-button:active {
+                transform: translateX(-50%) scale(0.95);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PIN Button - Bottom center on mobile, top right on desktop -->
+    <button class="pin-button" id="pinButton">
+        <i class="fas fa-lock"></i>
+        <span>Unlock</span>
+    </button>
+    
+    <!-- PIN Modal -->
+    <div class="pin-modal" id="pinModal">
+        <button class="close-modal" id="closeModal">&times;</button>
+        <div class="pin-card">
+            <div class="pin-icon">
+                <i class="fas fa-chart-line" style="font-size: 50px; color: #667eea;"></i>
+            </div>
+            <h2>P2P Profit Tracker</h2>
+            <p>Enter your PIN to access dashboard</p>
+            
+            <form id="pin-form" method="POST" action="{{ url_for('index') }}">
+                <input type="password" 
+                       name="pin" 
+                       id="pin-input"
+                       placeholder="••••" 
+                       maxlength="4" 
+                       pattern="\d*"
+                       autocomplete="off"
+                       inputmode="numeric"
+                       required>
+                <button type="submit">
+                    <i class="fas fa-unlock-alt"></i> Unlock Dashboard
+                </button>
+            </form>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message">
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.182.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.182.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="https://kit.fontawesome.com/a7765c6ed1.js" crossorigin="anonymous"></script>
+    
+    <script type="module">
+        import * as THREE from "three";
+        import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+        import * as BGU from "three/addons/utils/BufferGeometryUtils.js";
+
+        // Complete noise function
+        const noise = `
+            vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+            
+            float snoise(vec2 v){
+                const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+                         -0.577350269189626, 0.024390243902439);
+                vec2 i = floor(v + dot(v, C.yy));
+                vec2 x0 = v - i + dot(i, C.xx);
+                vec2 i1;
+                i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                vec4 x12 = x0.xyxy + C.xxzz;
+                x12.xy -= i1;
+                i = mod(i, 289.0);
+                vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+                vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+                m = m * m;
+                m = m * m;
+                vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                vec3 h = abs(x) - 0.5;
+                vec3 ox = floor(x + 0.5);
+                vec3 a0 = x - ox;
+                m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+                vec3 g;
+                g.x = a0.x * x0.x + h.x * x0.y;
+                g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                return 130.0 * dot(m, g);
+            }
+        `;
+
+        console.clear();
+        
+        const gu = {
+            time: {value: 0}
+        }
+        
+        // Convert geometry to quads for wireframe
+        const ToQuads = (g) => {
+            let p = g.parameters;
+            let segmentsX = (g.type == "TorusGeometry" ? p.tubularSegments : p.radialSegments) || p.widthSegments || p.thetaSegments || (p.points.length - 1) || 1;
+            let segmentsY = (g.type == "TorusGeometry" ? p.radialSegments : p.tubularSegments) || p.heightSegments || p.phiSegments || p.segments || 1;
+            let indices = [];
+            for (let i = 0; i < segmentsY + 1; i++) {
+                let index11 = 0;
+                let index12 = 0;
+                for (let j = 0; j < segmentsX; j++) {
+                    index11 = (segmentsX + 1) * i + j;
+                    index12 = index11 + 1;
+                    let index21 = index11;
+                    let index22 = index11 + (segmentsX + 1);
+                    indices.push(index11, index12);
+                    if (index22 < ((segmentsX + 1) * (segmentsY + 1) - 1)) {
+                        indices.push(index21, index22);
+                    }
+                }
+                if ((index12 + segmentsX + 1) <= ((segmentsX + 1) * (segmentsY + 1) - 1)) {
+                    indices.push(index12, index12 + segmentsX + 1);
+                }
+            }
+            g.setIndex(indices);
+        }
+        
+        // SeaBed Class - Animated ground
+        class SeaBed extends THREE.LineSegments {
+            constructor() {
+                const g = new THREE.PlaneGeometry(100, 100, 400, 400).rotateX(-Math.PI * 0.5).rotateY(Math.PI * 0.25);
+                ToQuads(g);
+                const m = new THREE.MeshBasicMaterial({
+                    color: "#048",
+                    onBeforeCompile: shader => {
+                        shader.uniforms.time = gu.time;
+                        shader.vertexShader = `
+                            uniform float time;
+                            varying float vN;
+                            varying vec3 vPos;
+                            ${noise}
+                            ${shader.vertexShader}
+                        `.replace(
+                            `#include <begin_vertex>`,
+                            `#include <begin_vertex>
+                            float t = time;
+                            float posX = position.x - mod(t, 2. * sqrt(2.));
+                            transformed.x = posX;
+                            float xShift = posX + t;
+                            float n = snoise(vec2(xShift, position.z) * 0.1);
+                            vN = n;
+                            transformed.y = n * 1.;
+                            vPos = transformed;
+                            `
+                        );
+                        shader.fragmentShader = `
+                            varying float vN;
+                            varying vec3 vPos;
+                            ${shader.fragmentShader}
+                        `.replace(
+                            `vec4 diffuseColor = vec4( diffuse, opacity );`,
+                            `
+                            vec3 col = mix(diffuse, vec3(0, 0.75, 1), 1. - smoothstep(-0.5, 0., vN));
+                            col += vec3(0, 0.2, 0.1) * (1. - smoothstep(10., 15., length(vPos)));
+                            vec4 diffuseColor = vec4( col, opacity );
+                            `
+                        );
+                    }
+                });
+                super(g, m);
+                this.position.y = -5;
+            }
+        }
+        
+        // Background Class - Space sphere
+        class Background extends THREE.Mesh {
+            constructor() {
+                const g = new THREE.SphereGeometry(300);
+                const m = new THREE.MeshBasicMaterial({
+                    side: THREE.BackSide,
+                    fog: false,
+                    color: "white",
+                    map: (() => {
+                        const c = document.createElement("canvas");
+                        c.width = 1;
+                        c.height = 1024;
+                        const ctx = c.getContext("2d");
+                        const grd = ctx.createLinearGradient(0, 0, 0, c.height);
+                        grd.addColorStop(0.1, "#044");
+                        grd.addColorStop(0.4, "#024");
+                        ctx.fillStyle = grd;
+                        ctx.fillRect(0, 0, c.width, c.height);
+                        const tex = new THREE.CanvasTexture(c);
+                        tex.colorSpace = "srgb";
+                        tex.anisotropy = 16;
+                        return tex;
+                    })()
+                });
+                super(g, m);
+            }
+        }
+        
+        // WaterStuff Class - Floating wireframe capsules
+        class WaterStuff extends THREE.Group {
+            constructor() {
+                super();
+                this.items = Array.from({ length: 50 }, () => {
+                    const item = new THREE.Mesh(
+                        new THREE.CapsuleGeometry(0.25, 2, 3, 7, 3),
+                        new THREE.MeshBasicMaterial({ wireframe: true, color: "#068" })
+                    );
+                    this.setRandom(item, 50 - Math.random() * 100);
+                    this.add(item);
+                    return item;
+                });
+            }
+            
+            setRandom(o, x) {
+                const a = Math.PI * Math.random();
+                const r = 5 + Math.random() * 10;
+                o.position.set(x, Math.sin(a) * r, Math.cos(a) * r);
+                o.rotation.setFromVector3(new THREE.Vector3().random().multiplyScalar(Math.PI * 2));
+                o.scale.y = 1 + (Math.random() - 0.5) * 1.5;
+            }
+            
+            update(dt) {
+                const lim = 50;
+                this.items.forEach(item => {
+                    let iPos = item.position.x - dt;
+                    item.position.x = iPos;
+                    if (iPos < -lim) {
+                        iPos = (iPos + lim) % 100;
+                        this.setRandom(item, lim + iPos);
+                    }
+                });
+            }
+        }
+        
+        // Main Central Object (Thing)
+        class Thing extends THREE.Group {
+            constructor() {
+                super();
+                
+                const gBase = new THREE.SphereGeometry(3, 64, 32);
+                
+                // Lines material
+                const gLines = new THREE.EdgesGeometry(gBase, 0.5);
+                const mLines = new THREE.LineBasicMaterial({ color: "#8ff", transparent: true, opacity: 0.75 });
+                const lines = new THREE.LineSegments(gLines, mLines);
+                this.add(lines);
+                
+                // Points material
+                const gPoints = BGU.mergeVertices(gBase.clone().deleteAttribute("uv").deleteAttribute("normal"));
+                const mPoints = new THREE.PointsMaterial({ color: "#0ff", size: 0.1, transparent: true });
+                const points = new THREE.Points(gPoints, mPoints);
+                this.add(points);
+                
+                [mLines, mPoints].forEach(m => {
+                    m.onBeforeCompile = shader => {
+                        shader.uniforms.time = gu.time;
+                        shader.vertexShader = `
+                            uniform float time;
+                            varying vec3 vPos;
+                            mat2 rot(float a) { return mat2(cos(a), sin(a), -sin(a), cos(a)); }
+                            ${shader.vertexShader}
+                        `.replace(
+                            `#include <begin_vertex>`,
+                            `#include <begin_vertex>
+                            vec3 pos = position;
+                            vPos = pos;
+                            
+                            pos.y *= 0.05;
+                            
+                            float a = atan(pos.z, pos.x);
+                            float s = cos(a * 4.);
+                            float r = s * 0.125 + 0.875;
+                            pos.xz *= r;
+                            
+                            pos.x -= (smoothstep(0., 3., pos.x)) * 0.75;
+                            
+                            float syncWave = sin(time * 1.25 + pos.x);
+                            
+                            float zSwaying = smoothstep(0.25, 2., abs(pos.z));
+                            mat2 zRot = rot(PI * 0.1 * zSwaying * syncWave * sign(pos.z));
+                            pos.yz *= zRot;
+                            
+                            pos.y += syncWave * 0.5 * ((1. - smoothstep(-3., 3., position.x)) * 0.5 + 0.5);
+                            
+                            transformed = pos;
+                            `
+                        );
+                        
+                        if (m.type == "PointsMaterial") {
+                            shader.fragmentShader = `
+                                varying vec3 vPos;
+                                ${shader.fragmentShader}
+                            `.replace(
+                                `vec4 diffuseColor = vec4( diffuse, opacity );`,
+                                `
+                                vec2 uv = gl_PointCoord - 0.5;
+                                float pl = length(uv);
+                                float fw = length(fwidth(uv));
+                                float f = 1. - smoothstep(0.5 - fw, 0.5, pl);
+                                
+                                if (pl > 0.5) discard;
+                                
+                                vec3 bodyColor = mix(vec3(1), diffuse, smoothstep(2., 1., vPos.x));
+                                vec3 col = mix(bodyColor, diffuse, smoothstep(0.5, 1.0, abs(vPos.z)));
+                                
+                                vec4 diffuseColor = vec4( col, opacity * f );
+                                `
+                            );
+                        }
+                    };
+                });
+                
+                this.position.y = 1;
+            }
+        }
+        
+        // Scene Setup
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color("#024");
+        scene.fog = new THREE.Fog(scene.background, 8, 30);
+        const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 500);
+        camera.position.set(0.5, 0.25, -1).setLength(7.25);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(devicePixelRatio);
+        renderer.setSize(innerWidth, innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        window.addEventListener("resize", () => {
+            camera.aspect = innerWidth / innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(innerWidth, innerHeight);
+        });
+        
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.enablePan = false;
+        controls.maxDistance = 15;
+        controls.maxPolarAngle = Math.PI * 0.6;
+        
+        // Add all objects to scene
+        const backgroundObj = new Background();
+        scene.add(backgroundObj);
+        
+        const thing = new Thing();
+        scene.add(thing);
+        
+        const seaBed = new SeaBed();
+        scene.add(seaBed);
+        
+        const waterStuff = new WaterStuff();
+        scene.add(waterStuff);
+        
+        const clock = new THREE.Clock();
+        let t = 0;
+        
+        // Animation loop
+        renderer.setAnimationLoop(() => {
+            const dt = clock.getDelta();
+            t += dt;
+            gu.time.value = t * 1.25;
+            controls.update();
+            waterStuff.update(dt);
+            renderer.render(scene, camera);
+        });
+        
+        // PIN Modal Functionality
+        const pinButton = document.getElementById('pinButton');
+        const pinModal = document.getElementById('pinModal');
+        const closeModal = document.getElementById('closeModal');
+        const pinForm = document.getElementById('pin-form');
+        const pinInput = document.getElementById('pin-input');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // Open modal
+        pinButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            pinModal.classList.add('active');
+            setTimeout(() => pinInput.focus(), 100);
+        });
+        
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            pinModal.classList.remove('active');
+            errorMessage.textContent = '';
+            pinInput.value = '';
+        });
+        
+        // Close modal when clicking outside
+        pinModal.addEventListener('click', (e) => {
+            if (e.target === pinModal) {
+                pinModal.classList.remove('active');
+                errorMessage.textContent = '';
+                pinInput.value = '';
+            }
+        });
+        
+        // Handle form submission
+        pinForm.addEventListener('submit', (e) => {
+            const pin = pinInput.value;
+            if (pin.length !== 4) {
+                e.preventDefault();
+                errorMessage.textContent = 'Please enter a 4-digit PIN';
+                pinInput.classList.add('error');
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                    pinInput.classList.remove('error');
+                }, 3000);
+            }
+        });
+        
+        // Auto-submit when 4 digits entered
+        pinInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (/^\d*$/.test(value) && value.length === 4) {
+                pinForm.submit();
+            }
+        });
+        
+        // Only allow numbers
+        pinInput.addEventListener('keypress', (e) => {
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Auto-dismiss flash messages
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(msg => {
+                setTimeout(() => {
+                    msg.style.opacity = '0';
+                    msg.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => msg.remove(), 500);
+                }, 4000);
+            });
+        }, 100);
+        
+        // Prevent zoom on input focus for mobile
+        pinInput.addEventListener('touchstart', () => {
+            pinInput.style.fontSize = '16px';
+            setTimeout(() => {
+                pinInput.style.fontSize = '';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3" style="color: #ff6b35; font-size: 20px;">Profit Growth Trend</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0" style="color: #000000; font-size: 14px;">Monthly Profit Chart</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="profitChart" width="400" height="200" style="background: #1a1a1a; border-radius: 10px; padding: 15px; width: 100%; height: auto;"></canvas>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-success">
+        <h5 class="mb-0" style="color: #ffffff; font-size: 14px;">Growth Analysis Table</h5>
+    </div>
+    <div class="card-body">
+        {% if table_data %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Year</th>
+                            <th>Final Profit</th>
+                            <th>Growth (vs Previous Month)</th>
+                            <th>Growth Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in table_data %}
+                        <tr>
+                            <td style="color: #ffffff;">{{ item.month_name }}</td>
+                            <td style="color: #ffffff;">{{ item.year }}</td>
+                            <td style="color: #ff6b35; font-weight: bold;">GHS{{ "%.2f"|format(item.profit) }}</td>
+                            <td class="{% if item.growth and item.growth > 0 %}text-success{% elif item.growth and item.growth < 0 %}text-danger{% endif %}" style="font-weight: bold;">
+                                {% if item.growth is not none %}
+                                    {% if item.growth > 0 %}+{% endif %}GHS{{ "%.2f"|format(item.growth) }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td class="{% if item.growth_percentage and item.growth_percentage > 0 %}text-success{% elif item.growth_percentage and item.growth_percentage < 0 %}text-danger{% endif %}" style="font-weight: bold;">
+                                {% if item.growth_percentage is not none %}
+                                    {% if item.growth_percentage > 0 %}+{% endif %}{{ "%.1f"|format(item.growth_percentage) }}%
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No data available for growth analysis. Please add some calculations first.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Pass chart data to JavaScript
+    window.chartData = {{ chart_data|tojson }};
+</script>
+{% endblock %}

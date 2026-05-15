@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3" style="color: #ff6b35; font-size: 20px;">Dashboard</h1>
+
+<div class="row g-2">
+    <!-- Main Total Profit Card with Breakdown -->
+    <div class="col-12 col-md-6 mb-2">
+        <div class="card bg-primary">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000; font-size: 14px;">Total Profit</h5>
+                <h2 class="card-text" style="color: #000000; font-size: 28px;">GHS {{ "%.2f"|format(current_profit) }}</h2>
+                <hr class="bg-dark" style="margin: 10px 0;">
+                <div style="font-size: 12px;">
+                    <p style="margin-bottom: 5px; color: #000000;">
+                        <strong>Total Comm =</strong> GHS {{ "%.2f"|format(total_commission) }}
+                    </p>
+                    <p style="margin-bottom: 0; color: #000000;">
+                        <strong>Earned from rate =</strong> GHS {{ "%.2f"|format(earn_from_rate) }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Funds Value Card - FIXED: No longer includes Lent Funds -->
+    <div class="col-12 col-md-6 mb-2">
+        <div class="card bg-info">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000; font-size: 14px;">Total Funds Value</h5>
+                <h2 class="card-text" style="color: #000000; font-size: 28px;">GHS {{ "%.2f"|format(total_funds_value) }}</h2>
+                <small style="color: #000000;">Equity + Foreign Funds</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Equity Card -->
+    <div class="col-12 col-md-4 mb-2">
+        <div class="card bg-success">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #ffffff; font-size: 13px;">Equity</h5>
+                <h3 style="color: #ffffff; font-size: 22px;">GHS {{ "%.2f"|format(equity) }}</h3>
+                <small style="color: #ffffff;">Your capital (includes lent funds)</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Foreign Funds Card -->
+    <div class="col-12 col-md-4 mb-2">
+        <div class="card bg-warning">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000; font-size: 13px;">Foreign Funds</h5>
+                <h3 style="color: #000000; font-size: 22px;">GHS {{ "%.2f"|format(foreign_funds_total) }}</h3>
+                <small style="color: #000000;">Others' money you hold</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lent Funds Card - Now just shows money you've lent out -->
+    <div class="col-12 col-md-4 mb-2">
+        <div class="card bg-secondary">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #ffffff; font-size: 13px;">Lent Funds</h5>
+                <h3 style="color: #ffffff; font-size: 22px;">GHS {{ "%.2f"|format(lent_funds_total) }}</h3>
+                <small style="color: #ffffff;">From your equity</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-2 mt-2">
+    <!-- Daily Statistics Card -->
+    <div class="col-12 col-md-6 mb-2">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0" style="color: #000000; font-size: 14px;">Daily Statistics</h5>
+            </div>
+            <div class="card-body">
+                <p style="margin-bottom: 8px; font-size: 13px;"><strong style="color: #ff6b35;">Average Daily Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(daily_average) }}</strong></p>
+                <p style="margin-bottom: 0; font-size: 13px;"><strong style="color: #ff6b35;">Projected Monthly Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(projected_profit) }}</strong></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rate Information Card -->
+    <div class="col-12 col-md-6 mb-2">
+        <div class="card bg-primary">
+            <div class="card-body">
+                <h5 class="card-title" style="color: #000000; font-size: 14px;">Rate Information</h5>
+                <div class="row mt-2">
+                    <div class="col-6">
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset:</strong></p>
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Reference Rate:</strong></p>
+                    </div>
+                    <div class="col-6">
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">${{ "%.2f"|format(locked_asset) }}</strong></p>
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">{{ "%.2f"|format(ref_rate) }}</strong></p>
+                    </div>
+                </div>
+                <hr class="bg-dark">
+                <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset Gain/Loss:</strong> 
+                    {% if locked_asset_gain_loss >= 0 %}
+                        <span style="color: #eef6f0;">+GHS{{ "%.2f"|format(locked_asset_gain_loss) }}</span>
+                    {% else %}
+                        <span style="color: #f8d3d6;">-GHS {{ "%.2f"|format(-locked_asset_gain_loss) }}</span>
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('locked_asset_settings') }}" class="btn btn-dark btn-sm mt-2" style="padding: 5px 12px; font-size: 11px;">
+                    <i class="fas fa-edit"></i> Update Settings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

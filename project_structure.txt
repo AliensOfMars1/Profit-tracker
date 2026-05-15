@@ -1,0 +1,20 @@
+p2p_profit_tracker/
+├── app.py
+├── models.py
+├── requirements.txt
+├── instance/
+│   └── database.db (auto-created)
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── main.js
+└── templates/
+    ├── base.html
+    ├── dashboard.html
+    ├── calculation_form.html
+    ├── foreign_funds.html
+    ├── lent_funds.html
+    ├── locked_asset_settings.html
+    ├── reports.html
+    └── growth_trend.html

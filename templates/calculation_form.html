@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4" style="color: #ff6b35;">New Profit Calculation</h1>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('calculation') }}">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="equity" class="form-label">Equity (Main Capital)</label>
+                    <input type="number" step="0.01" class="form-control" id="equity" name="equity" 
+                           value="{{ equity_setting if equity_setting else '0' }}" required>
+                    <small class="text-muted">Auto-populated from settings</small>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="total_usdt" class="form-label">Total USDT Balance</label>
+                    <input type="number" step="0.01" class="form-control" id="total_usdt" name="total_usdt" 
+                           value="{{ latest_calc.total_usdt if latest_calc else '0' }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="rate" class="form-label">Current USDT Rate</label>
+                    <input type="number" step="0.01" class="form-control" id="rate" name="rate" 
+                           value="" placeholder="Enter current market rate" required>
+                    <small class="text-muted">Enter current market rate</small>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="ecash" class="form-label">eCash Balance</label>
+                    <input type="number" step="0.01" class="form-control" id="ecash" name="ecash" 
+                           value="{{ latest_calc.ecash if latest_calc else '0' }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="hard_cash" class="form-label">Hard Cash</label>
+                    <input type="number" step="0.01" class="form-control" id="hard_cash" name="hard_cash" 
+                           value="{{ latest_calc.hard_cash if latest_calc else '0' }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="cashin_commission" class="form-label">Cash-in Commission</label>
+                    <input type="number" step="0.01" class="form-control" id="cashin_commission" name="cashin_commission" 
+                           value="{{ latest_calc.cashin_commission if latest_calc else '0' }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="cashout_commission" class="form-label">Cash-out Commission</label>
+                    <input type="number" step="0.01" class="form-control" id="cashout_commission" name="cashout_commission" 
+                           value="{{ latest_calc.cashout_commission if latest_calc else '0' }}" required>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="foreign_funds" class="form-label">Foreign Funds</label>
+                    <input type="number" step="0.01" class="form-control" id="foreign_funds" name="foreign_funds" 
+                           value="{{ foreign_funds_total }}" readonly style="background: #1a1a1a; color: #ff6b35; font-weight: bold;">
+                    <small class="text-muted">Auto-populated from active foreign funds</small>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <label for="lent_funds" class="form-label">Lent Funds</label>
+                    <input type="number" step="0.01" class="form-control" id="lent_funds" name="lent_funds" 
+                           value="{{ lent_funds_total }}" readonly style="background: #1a1a1a; color: #ff6b35; font-weight: bold;">
+                    <small class="text-muted">Auto-populated from active lent funds</small>
+                </div>
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>Formula:</strong> Profit = ((USDT × Rate) + eCash + Hard Cash + Cash-in Commission + Cash-out Commission + Lent Funds) - (Equity + Foreign Funds)
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Calculate & Save</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>P2P Profit Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="sidebar d-none d-lg-block">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-chart-line"></i> P2P Tracker</h4>
+        </div>
+        <ul class="sidebar-nav">
+            <li class="nav-item"><a href="{{ url_for('dashboard') }}" class="nav-link"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('calculation') }}" class="nav-link"><i class="fas fa-calculator"></i><span>New Calculation</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('foreign_funds') }}" class="nav-link"><i class="fas fa-globe"></i><span>Foreign Funds</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('lent_funds') }}" class="nav-link"><i class="fas fa-hand-holding-usd"></i><span>Lent Funds</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('locked_asset_settings') }}" class="nav-link"><i class="fas fa-lock"></i><span>Locked Asset / Ref Rate</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('reports') }}" class="nav-link"><i class="fas fa-chart-bar"></i><span>Reports</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('growth_trend') }}" class="nav-link"><i class="fas fa-chart-line"></i><span>Growth Trend</span></a></li>
+            <li class="nav-item"><a href="{{ url_for('logout') }}" class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <div class="mobile-bottom-nav d-lg-none">
+        <div class="bottom-nav-container">
+            <a href="{{ url_for('dashboard') }}" class="bottom-nav-item"><i class="fas fa-tachometer-alt"></i><span>Home</span></a>
+            <a href="{{ url_for('calculation') }}" class="bottom-nav-item"><i class="fas fa-calculator"></i><span>Calc</span></a>
+            <a href="{{ url_for('foreign_funds') }}" class="bottom-nav-item"><i class="fas fa-globe"></i><span>Foreign</span></a>
+            <a href="{{ url_for('lent_funds') }}" class="bottom-nav-item"><i class="fas fa-hand-holding-usd"></i><span>Lent</span></a>
+            <a href="{{ url_for('reports') }}" class="bottom-nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+            <a href="{{ url_for('locked_asset_settings') }}" class="bottom-nav-item"><i class="fas fa-lock"></i><span>Settings</span></a>
+            <a href="{{ url_for('growth_trend') }}" class="bottom-nav-item"><i class="fas fa-chart-line"></i><span>Growth</span></a>
+            <a href="{{ url_for('logout') }}" class="bottom-nav-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <nav class="top-navbar">
+            <div class="container-fluid">
+                <h5 class="mb-0">P2P Profit Tracker</h5>
+                <div class="user-info"><i class="fas fa-user-circle"></i><span>The Quap Man</span></div>
+            </div>
+        </nav>
+        <div class="content-wrapper">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' }}"></i> {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.bottom-nav-item, .sidebar-nav .nav-link').forEach(item => {
+            const href = item.getAttribute('href');
+            if (href === currentPath) item.classList.add('active');
+        });
+    </script>
+</body>
+</html>
