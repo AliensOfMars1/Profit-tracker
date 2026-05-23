@@ -5,6 +5,7 @@ from calendar import monthrange
 from decimal import Decimal
 from sqlalchemy import func
 from functools import wraps
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this-in-production'
@@ -109,15 +110,26 @@ def dashboard():
         month=today.month
     ).order_by(Calculation.created_at.desc()).first()
     
+    # Get LIVE totals first (always current)
+    foreign_funds_total = get_total_foreign_funds()
+    lent_funds_total = get_total_lent_funds()
+    equity_setting = get_latest_setting('equity')
+    locked_asset = get_latest_setting('locked_asset')
+    ref_rate = get_latest_setting('ref_rate')
+    
+    # Total Funds Value = LIVE equity + LIVE foreign funds
+    total_funds_value = equity_setting + foreign_funds_total
+    
+    # Calculate Available Funds (Liquid)
+    # Available = (Equity + Foreign) - (Locked Asset + Lent Funds)
+    available_funds = (equity_setting + foreign_funds_total) - (locked_asset + lent_funds_total)
+    
     if latest_calc:
         current_profit = latest_calc.profit
         operating_profit = latest_calc.operating_profit
         locked_asset_gain_loss = latest_calc.locked_asset_gain_loss
         equity = latest_calc.equity
-        # FIXED: Total Funds Value = Equity + Foreign Funds (NOT including Lent Funds)
-        total_funds_value = latest_calc.equity + latest_calc.foreign_funds
         
-        # Calculate total commission and earned from rate
         total_commission = latest_calc.cashin_commission + latest_calc.cashout_commission
         earn_from_rate = float(current_profit) - float(total_commission)
         
@@ -132,19 +144,11 @@ def dashboard():
         current_profit = Decimal('0')
         operating_profit = Decimal('0')
         locked_asset_gain_loss = Decimal('0')
-        equity = get_latest_setting('equity')
-        # FIXED: Total Funds Value = Equity + Foreign Funds
-        total_funds_value = equity + get_total_foreign_funds()
+        equity = equity_setting
         total_commission = Decimal('0')
         earn_from_rate = Decimal('0')
         daily_average = Decimal('0')
         projected_profit = Decimal('0')
-    
-    foreign_funds_total = get_total_foreign_funds()
-    lent_funds_total = get_total_lent_funds()
-    locked_asset = get_latest_setting('locked_asset')
-    ref_rate = get_latest_setting('ref_rate')
-    equity_setting = get_latest_setting('equity')
     
     return render_template('dashboard.html',
                          current_profit=current_profit,
@@ -160,7 +164,8 @@ def dashboard():
                          ref_rate=ref_rate,
                          equity_setting=equity_setting,
                          total_commission=total_commission,
-                         earn_from_rate=earn_from_rate)
+                         earn_from_rate=earn_from_rate,
+                         available_funds=available_funds)  # ← ADD THIS
 
 @app.route('/calculation', methods=['GET', 'POST'])
 @login_required
@@ -219,7 +224,7 @@ def calculation():
             
             db.session.add(calculation)
             db.session.commit()
-            flash(f'Calculation saved! Total Profit: ${profit_data["total_profit"]:,.2f}', 'success')
+            flash(f'Calculation saved! Total Profit: GHS {profit_data["total_profit"]:,.2f}', 'success')
             return redirect(url_for('dashboard'))
             
         except Exception as e:
@@ -266,6 +271,31 @@ def add_foreign_fund():
         flash(f'Error adding fund: {str(e)}', 'error')
     return redirect(url_for('foreign_funds'))
 
+@app.route('/foreign-funds/edit', methods=['POST'])
+@login_required
+def edit_foreign_fund():
+    try:
+        fund_id = request.form.get('fund_id')
+        fund = ForeignFund.query.get_or_404(fund_id)
+        
+        person_name = request.form['person_name']
+        amount = Decimal(request.form['amount'])
+        note = request.form.get('note', '')
+        
+        if amount < 0:
+            flash('Amount cannot be negative.', 'error')
+            return redirect(url_for('foreign_funds'))
+        
+        fund.person_name = person_name
+        fund.amount = amount
+        fund.note = note
+        
+        db.session.commit()
+        flash('Foreign fund updated successfully!', 'success')
+    except Exception as e:
+        flash(f'Error updating fund: {str(e)}', 'error')
+    return redirect(url_for('foreign_funds'))
+
 @app.route('/foreign-funds/settle/<int:id>')
 @login_required
 def settle_foreign_fund(id):
@@ -307,6 +337,31 @@ def add_lent_fund():
         flash('Lent fund added successfully!', 'success')
     except Exception as e:
         flash(f'Error adding fund: {str(e)}', 'error')
+    return redirect(url_for('lent_funds'))
+
+@app.route('/lent-funds/edit', methods=['POST'])
+@login_required
+def edit_lent_fund():
+    try:
+        fund_id = request.form.get('fund_id')
+        fund = LentFund.query.get_or_404(fund_id)
+        
+        borrower_name = request.form['borrower_name']
+        amount = Decimal(request.form['amount'])
+        note = request.form.get('note', '')
+        
+        if amount < 0:
+            flash('Amount cannot be negative.', 'error')
+            return redirect(url_for('lent_funds'))
+        
+        fund.borrower_name = borrower_name
+        fund.amount = amount
+        fund.note = note
+        
+        db.session.commit()
+        flash('Lent fund updated successfully!', 'success')
+    except Exception as e:
+        flash(f'Error updating fund: {str(e)}', 'error')
     return redirect(url_for('lent_funds'))
 
 @app.route('/lent-funds/pay/<int:id>')
@@ -461,4 +516,9 @@ def growth_trend():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    
+    # Get port from environment variable (Railway sets this)
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Use debug=False in production
+    app.run(host='0.0.0.0', port=port, debug=False)

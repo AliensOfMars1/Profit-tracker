@@ -54,9 +54,10 @@
                     <i class="fas fa-info-circle"></i> Current Values
                 </h5>
                 <hr class="bg-dark">
-                <p><strong><i class="fas fa-chart-pie"></i> Equity:</strong> <strong>${{ "%.2f"|format(equity) }}</strong></p>
-                <p><strong><i class="fas fa-lock"></i> Locked Asset:</strong> <strong>${{ "%.2f"|format(locked_asset) }}</strong></p>
-                <p><strong><i class="fas fa-percent"></i> Reference Rate:</strong> <strong>{{ "%.2f"|format(ref_rate) }}</strong></p>
+                <p><strong><i class="fas fa-chart-pie"></i> Equity:</strong> <strong>GHS{{ "%.2f"|format(equity) }}</strong></p>
+                <p><strong><i class="fas fa-lock"></i> Locked Asset:</strong> <strong>GHS{{ "%.2f"|format(locked_asset) }}</strong></p>
+                <p><strong><i class="fas fa-coins"></i> Locked Asset worth:</strong> <strong>GHS{{ "%.2f"|format(locked_asset * ref_rate) }}</strong></p>
+                <p><strong><i class="fas fa-percent"></i> Reference Rate:</strong> <strong>{{ "%.2f"|format(ref_rate) }}</strong></p>                
                 <hr class="bg-dark">
                 <p class="small mb-0 text-dark">
                     <i class="fas fa-clock"></i> These values persist across calculations and are used as defaults in the calculation form.
@@ -68,9 +69,9 @@
             <div class="card-body">
                 <h6><i class="fas fa-lightbulb" style="color: #ff6b35;"></i> How it works:</h6>
                 <ul class="small">
-                    <li>Equity is your main capital that stays relatively constant</li>
+                    <li>Equity is the main capital that stays relatively constant</li>
                     <li>Update these values whenever your business fundamentals change</li>
-                    <li>These values will auto-populate in the calculation form</li>
+                    <li>These values auto-populates their field in calculation form</li>
                     <li>Each calculation still stores the equity value used at that time</li>
                 </ul>
             </div>

@@ -16,7 +16,7 @@
                         <input type="text" class="form-control" id="person_name" name="person_name" required>
                     </div>
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Amount</label>
+                        <label for="amount" class="form-label">Amount (GHS)</label>
                         <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
                     </div>
                     <div class="mb-3">
@@ -31,7 +31,7 @@
     
     <div class="col-md-7 mb-4">
         <div class="card">
-            <div class="card-header bg-success" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;">
+            <div class="card-header bg-success">
                 <h5 class="mb-0" style="color: #ffffff;">Active Foreign Funds</h5>
             </div>
             <div class="card-body">
@@ -40,19 +40,25 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Person/Source</th>
+                                    <th>Person</th>
                                     <th>Amount</th>
+                                    <th>Note</th>
                                     <th>Date Added</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for fund in active_funds %}
-                                <tr>
+                                <tr id="fund-row-{{ fund.id }}">
                                     <td style="color: #ffffff;">{{ fund.person_name }}</td>
-                                    <td style="color: #ff6b35; font-weight: bold;">GHS{{ "%.2f"|format(fund.amount) }}</td>
+                                    <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(fund.amount) }}</td>
+                                    <td style="color: #ffffff;">{{ fund.note[:50] }}</td>
                                     <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
                                     <td>
+                                        <button class="btn btn-sm btn-info" onclick="showEditModal({{ fund.id }}, '{{ fund.person_name }}', {{ fund.amount }}, '{{ fund.note|replace("'", "\\'") }}')" style="color: #000000;">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <a href="{{ url_for('settle_foreign_fund', id=fund.id) }}" class="btn btn-sm btn-warning" onclick="return confirm('Mark as settled?')" style="color: #000000;">Settle</a>
                                         <a href="{{ url_for('delete_foreign_fund', id=fund.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this fund?')">Delete</a>
                                     </td>
                                 </tr>
@@ -86,7 +92,7 @@
                             {% for fund in settled_funds %}
                             <tr>
                                 <td style="color: #ffffff;">{{ fund.person_name }}</td>
-                                <td style="color: #ff6b35; font-weight: bold;">GHS{{ "%.2f"|format(fund.amount) }}</td>
+                                <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(fund.amount) }}</td>
                                 <td style="color: #ffffff;">{{ fund.note[:50] }}</td>
                                 <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
                             </tr>
@@ -99,4 +105,47 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: #1a1a1a; border: 1px solid #ff6b35;">
+            <div class="modal-header" style="border-bottom-color: #ff6b35;">
+                <h5 class="modal-title" style="color: #ff6b35;">Edit Foreign Fund</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" method="POST">
+                    <input type="hidden" name="fund_id" id="edit_fund_id">
+                    <div class="mb-3">
+                        <label for="edit_person_name" class="form-label">Person/Source Name</label>
+                        <input type="text" class="form-control" id="edit_person_name" name="person_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_amount" class="form-label">Amount (GHS)</label>
+                        <input type="number" step="0.01" class="form-control" id="edit_amount" name="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_note" class="form-label">Note/Description</label>
+                        <textarea class="form-control" id="edit_note" name="note" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Fund</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showEditModal(id, name, amount, note) {
+        document.getElementById('edit_fund_id').value = id;
+        document.getElementById('edit_person_name').value = name;
+        document.getElementById('edit_amount').value = amount;
+        document.getElementById('edit_note').value = note;
+        document.getElementById('editForm').action = "{{ url_for('edit_foreign_fund') }}";
+        
+        var myModal = new bootstrap.Modal(document.getElementById('editModal'));
+        myModal.show();
+    }
+</script>
 {% endblock %}

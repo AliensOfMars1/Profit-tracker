@@ -23,13 +23,19 @@
         </div>
     </div>
     
-    <!-- Total Funds Value Card - FIXED: No longer includes Lent Funds -->
+    <!-- Total Funds Value Card with Available Funds -->
     <div class="col-12 col-md-6 mb-2">
         <div class="card bg-info">
             <div class="card-body">
                 <h5 class="card-title" style="color: #000000; font-size: 14px;">Total Funds Value</h5>
                 <h2 class="card-text" style="color: #000000; font-size: 28px;">GHS {{ "%.2f"|format(total_funds_value) }}</h2>
                 <small style="color: #000000;">Equity + Foreign Funds</small>
+                <hr class="bg-dark" style="margin: 10px 0;">
+                <div style="font-size: 13px;">
+                    <strong style="color: #000000;">Available Funds (Liquid):</strong>
+                    <strong style="color:#000000;">GHS {{ "%.2f"|format(available_funds) }}</strong>
+                    <small style="color: #000000; display: block;">(Equity + Foreign) - (Locked + Lent)</small>
+                </div>
             </div>
         </div>
     </div>
@@ -77,6 +83,7 @@
             </div>
             <div class="card-body">
                 <p style="margin-bottom: 8px; font-size: 13px;"><strong style="color: #ff6b35;">Average Daily Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(daily_average) }}</strong></p>
+                <p style="margin-bottom: 0; font-size: 13px;"><strong style="color: #ff6b35;"></strong> <strong style="color: #ffffff;"></strong></p>
                 <p style="margin-bottom: 0; font-size: 13px;"><strong style="color: #ff6b35;">Projected Monthly Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(projected_profit) }}</strong></p>
             </div>
         </div>
@@ -100,9 +107,9 @@
                 <hr class="bg-dark">
                 <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset Gain/Loss:</strong> 
                     {% if locked_asset_gain_loss >= 0 %}
-                        <span style="color: #eef6f0;">+GHS{{ "%.2f"|format(locked_asset_gain_loss) }}</span>
+                        <span style="color: #000000;">+GHS{{ "%.2f"|format(locked_asset_gain_loss) }}</span>
                     {% else %}
-                        <span style="color: #f8d3d6;">-GHS {{ "%.2f"|format(-locked_asset_gain_loss) }}</span>
+                        <span style="color: #000000;">-GHS {{ "%.2f"|format(-locked_asset_gain_loss) }}</span>
                     {% endif %}
                 </p>
                 <a href="{{ url_for('locked_asset_settings') }}" class="btn btn-dark btn-sm mt-2" style="padding: 5px 12px; font-size: 11px;">

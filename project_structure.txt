@@ -1,6 +1,9 @@
 p2p_profit_tracker/
 ├── app.py
 ├── models.py
+├── .gitgnore 
+├── procfile
+├── runtime.txt
 ├── requirements.txt
 ├── instance/
 │   └── database.db (auto-created)
@@ -17,4 +20,4 @@ p2p_profit_tracker/
     ├── lent_funds.html
     ├── locked_asset_settings.html
     ├── reports.html
-    └── growth_trend.html
+    ├── growth_trend.html                 

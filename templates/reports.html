@@ -8,7 +8,7 @@
         <div class="card bg-success">
             <div class="card-body">
                 <h5 class="card-title" style="color: #ffffff;">Current Month Profit</h5>
-                <h2 style="color: #ffffff;">${{ "%.2f"|format(current_month_profit) }}</h2>
+                <h2 style="color: #ffffff;">GHS {{ "%.2f"|format(current_month_profit) }}</h2>
             </div>
         </div>
     </div>
@@ -17,7 +17,7 @@
         <div class="card bg-info">
             <div class="card-body">
                 <h5 class="card-title" style="color: #000000;">Average Daily Profit</h5>
-                <h2 style="color: #000000;">${{ "%.2f"|format(avg_daily_profit) }}</h2>
+                <h2 style="color: #000000;">GHS {{ "%.2f"|format(avg_daily_profit) }}</h2>
             </div>
         </div>
     </div>
@@ -28,7 +28,7 @@
         <div class="card bg-warning">
             <div class="card-body">
                 <h5 class="card-title" style="color: #000000;">Projected Monthly Profit</h5>
-                <h2 style="color: #000000;">${{ "%.2f"|format(projected_profit) }}</h2>
+                <h2 style="color: #000000;">GHS {{ "%.2f"|format(projected_profit) }}</h2>
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
                         <tr>
                             <td style="color: #ffffff;">{{ calc.year }}</td>
                             <td style="color: #ffffff;">{{ calc.month }}</td>
-                            <td style="color: #ff6b35; font-weight: bold;">${{ "%.2f"|format(calc.profit) }}</td>
+                            <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(calc.profit) }}</td>
                             <td style="color: #ffffff;">{{ calc.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                         </tr>
                         {% endfor %}
@@ -88,9 +88,9 @@
                         {% for year, data in annual_summary.items()|sort(reverse=true) %}
                         <tr>
                             <td style="color: #ffffff;">{{ year }}</td>
-                            <td style="color: #ff6b35; font-weight: bold;">${{ "%.2f"|format(data.total_profit) }}</td>
+                            <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(data.total_profit) }}</td>
                             <td style="color: #ffffff;">{{ data.months_count }}</td>
-                            <td style="color: #ffffff;">${{ "%.2f"|format(data.total_profit / data.months_count) }}</td>
+                            <td style="color: #ffffff;">GHS {{ "%.2f"|format(data.total_profit / data.months_count) }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
