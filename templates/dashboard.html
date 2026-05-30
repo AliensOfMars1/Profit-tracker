@@ -4,19 +4,29 @@
 <h1 class="mb-3" style="color: #ff6b35; font-size: 20px;">Dashboard</h1>
 
 <div class="row g-2">
-    <!-- Main Total Profit Card with Breakdown -->
+    <!-- Main Total Profit Card with Breakdown and Eye Toggle -->
     <div class="col-12 col-md-6 mb-2">
         <div class="card bg-primary">
             <div class="card-body">
-                <h5 class="card-title" style="color: #000000; font-size: 14px;">Total Profit</h5>
-                <h2 class="card-text" style="color: #000000; font-size: 28px;">GHS {{ "%.2f"|format(current_profit) }}</h2>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-title" style="color: #000000; font-size: 14px; margin-bottom: 0;">Total Profit</h5>
+                    <button id="toggleProfitBtn" class="btn btn-sm btn-link" style="color: #000000; text-decoration: none; padding: 0;" onclick="toggleProfit()">
+                        <i id="eyeIcon" class="fas fa-eye-slash"></i>
+                    </button>
+                </div>
+                <h2 class="card-text" style="color: #000000; font-size: 28px;">
+                    <span id="profitAmount">******</span>
+                    <span id="profitValue" style="display: none;">GHS {{ "%.2f"|format(current_profit) }}</span>
+                </h2>
                 <hr class="bg-dark" style="margin: 10px 0;">
                 <div style="font-size: 12px;">
                     <p style="margin-bottom: 5px; color: #000000;">
-                        <strong>Total Comm =</strong> GHS {{ "%.2f"|format(total_commission) }}
+                        <strong>Total Comm =</strong> <span id="totalCommSpan">******</span>
+                        <span id="totalCommValue" style="display: none;">GHS {{ "%.2f"|format(total_commission) }}</span>
                     </p>
                     <p style="margin-bottom: 0; color: #000000;">
-                        <strong>Earned from rate =</strong> GHS {{ "%.2f"|format(earn_from_rate) }}
+                        <strong>Earned from rate =</strong> <span id="earnRateSpan">******</span>
+                        <span id="earnRateValue" style="display: none;">GHS {{ "%.2f"|format(earn_from_rate) }}</span>
                     </p>
                 </div>
             </div>
@@ -62,7 +72,7 @@
         </div>
     </div>
     
-    <!-- Lent Funds Card - Now just shows money you've lent out -->
+    <!-- Lent Funds Card -->
     <div class="col-12 col-md-4 mb-2">
         <div class="card bg-secondary">
             <div class="card-body">
@@ -83,7 +93,6 @@
             </div>
             <div class="card-body">
                 <p style="margin-bottom: 8px; font-size: 13px;"><strong style="color: #ff6b35;">Average Daily Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(daily_average) }}</strong></p>
-                <p style="margin-bottom: 0; font-size: 13px;"><strong style="color: #ff6b35;"></strong> <strong style="color: #ffffff;"></strong></p>
                 <p style="margin-bottom: 0; font-size: 13px;"><strong style="color: #ff6b35;">Projected Monthly Profit:</strong> <strong style="color: #ffffff;">GHS {{ "%.2f"|format(projected_profit) }}</strong></p>
             </div>
         </div>
@@ -98,16 +107,18 @@
                     <div class="col-6">
                         <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset:</strong></p>
                         <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Reference Rate:</strong></p>
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset Worth:</strong></p>                        
                     </div>
                     <div class="col-6">
                         <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">${{ "%.2f"|format(locked_asset) }}</strong></p>
                         <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">{{ "%.2f"|format(ref_rate) }}</strong></p>
+                        <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">GHS {{ "%.2f"|format(locked_asset * ref_rate) }}</strong></p>  
                     </div>
                 </div>
                 <hr class="bg-dark">
                 <p style="margin-bottom: 5px; font-size: 12px;"><strong style="color: #000000;">Locked Asset Gain/Loss:</strong> 
                     {% if locked_asset_gain_loss >= 0 %}
-                        <span style="color: #000000;">+GHS{{ "%.2f"|format(locked_asset_gain_loss) }}</span>
+                        <span style="color: #000000;">+GHS {{ "%.2f"|format(locked_asset_gain_loss) }}</span>
                     {% else %}
                         <span style="color: #000000;">-GHS {{ "%.2f"|format(-locked_asset_gain_loss) }}</span>
                     {% endif %}
@@ -119,4 +130,40 @@
         </div>
     </div>
 </div>
+
+<script>
+    let profitVisible = false;
+
+    function toggleProfit() {
+        profitVisible = !profitVisible;
+        
+        const profitAmountSpan = document.getElementById('profitAmount');
+        const profitValueSpan = document.getElementById('profitValue');
+        const totalCommSpan = document.getElementById('totalCommSpan');
+        const totalCommValue = document.getElementById('totalCommValue');
+        const earnRateSpan = document.getElementById('earnRateSpan');
+        const earnRateValue = document.getElementById('earnRateValue');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (profitVisible) {
+            profitAmountSpan.style.display = 'none';
+            profitValueSpan.style.display = 'inline';
+            totalCommSpan.style.display = 'none';
+            totalCommValue.style.display = 'inline';
+            earnRateSpan.style.display = 'none';
+            earnRateValue.style.display = 'inline';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        } else {
+            profitAmountSpan.style.display = 'inline';
+            profitValueSpan.style.display = 'none';
+            totalCommSpan.style.display = 'inline';
+            totalCommValue.style.display = 'none';
+            earnRateSpan.style.display = 'inline';
+            earnRateValue.style.display = 'none';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        }
+    }
+</script>
 {% endblock %}

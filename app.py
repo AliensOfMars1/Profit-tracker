@@ -122,7 +122,7 @@ def dashboard():
     
     # Calculate Available Funds (Liquid)
     # Available = (Equity + Foreign) - (Locked Asset + Lent Funds)
-    available_funds = (equity_setting + foreign_funds_total) - (locked_asset + lent_funds_total)
+    available_funds = (equity_setting + foreign_funds_total) - ((locked_asset * ref_rate) + lent_funds_total)
     
     if latest_calc:
         current_profit = latest_calc.profit
@@ -251,7 +251,9 @@ def calculation():
 def foreign_funds():
     active_funds = ForeignFund.query.filter_by(status='active').order_by(ForeignFund.date_added.desc()).all()
     settled_funds = ForeignFund.query.filter_by(status='settled').order_by(ForeignFund.date_added.desc()).all()
-    return render_template('foreign_funds.html', active_funds=active_funds, settled_funds=settled_funds)
+    foreign_total = get_total_foreign_funds()  # Add this line
+    return render_template('foreign_funds.html', active_funds=active_funds, settled_funds=settled_funds, foreign_total=foreign_total)
+
 
 @app.route('/foreign-funds/add', methods=['POST'])
 @login_required
@@ -319,7 +321,8 @@ def delete_foreign_fund(id):
 def lent_funds():
     active_funds = LentFund.query.filter_by(status='active').order_by(LentFund.date_lent.desc()).all()
     paid_funds = LentFund.query.filter_by(status='paid').order_by(LentFund.date_lent.desc()).all()
-    return render_template('lent_funds.html', active_funds=active_funds, paid_funds=paid_funds)
+    lent_total = get_total_lent_funds()  # Add this line
+    return render_template('lent_funds.html', active_funds=active_funds, paid_funds=paid_funds, lent_total=lent_total)
 
 @app.route('/lent-funds/add', methods=['POST'])
 @login_required

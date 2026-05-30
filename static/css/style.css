@@ -15,10 +15,10 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 
 /* Mobile Bottom Navigation */
 .mobile-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #000000; border-top: 1px solid #ff6b35; z-index: 1000; display: none; }
-.bottom-nav-container { display: flex; justify-content: space-around; align-items: center; padding: 8px 5px; overflow-x: auto; gap: 2px; }
-.bottom-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #888; font-size: 10px; transition: all 0.3s ease; padding: 5px 6px; border-radius: 10px; min-width: 50px; flex-shrink: 0; }
-.bottom-nav-item i { font-size: 18px; margin-bottom: 3px; }
-.bottom-nav-item span { font-size: 9px; }
+.bottom-nav-container { display: flex; justify-content: space-around; align-items: center; padding: 8px 10px; gap: 5px; }
+.bottom-nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #888; font-size: 11px; transition: all 0.3s ease; padding: 5px 8px; border-radius: 10px; min-width: 55px; background: none; border: none; cursor: pointer; }
+.bottom-nav-item i { font-size: 20px; margin-bottom: 4px; }
+.bottom-nav-item span { font-size: 10px; }
 .bottom-nav-item:hover { color: #ff6b35; background: rgba(255, 107, 53, 0.1); }
 .bottom-nav-item.active { color: #ff6b35; background: rgba(255, 107, 53, 0.15); }
 
@@ -46,7 +46,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .bg-danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important; color: #ffffff !important; }
 .bg-dark { background: #000000 !important; color: #ffffff !important; }
 
-/* Form Controls - Dark theme, no white background */
+/* Form Controls */
 .form-control, .form-select {
     border-radius: 10px;
     border: 1px solid #ff6b35;
@@ -63,21 +63,14 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
     color: #ff6b35 !important;
     outline: none;
 }
-.form-control::placeholder {
-    color: #666 !important;
-}
+.form-control::placeholder { color: #666 !important; }
 .form-control[readonly] {
     background: #0a0a0a !important;
     color: #ff8c42 !important;
     font-weight: bold;
     border-color: #ff8c42;
 }
-.form-label {
-    color: #ff6b35;
-    font-weight: 500;
-    font-size: 13px;
-    margin-bottom: 5px;
-}
+.form-label { color: #ff6b35; font-weight: 500; font-size: 13px; margin-bottom: 5px; }
 
 /* Buttons */
 .btn { border-radius: 10px; padding: 8px 16px; font-weight: 500; font-size: 13px; }
@@ -87,6 +80,10 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .btn-secondary:hover { background: #ff6b35; color: #000000 !important; }
 .btn-danger { background: #dc3545; border: none; color: white !important; }
 .btn-warning { background: #ffc107; border: none; color: #000000 !important; }
+.btn-info { background: #17a2b8; border: none; color: #000000 !important; }
+.btn-dark { background: #000000; border: 1px solid #ff6b35; color: #ff6b35 !important; }
+.btn-dark:hover { background: #ff6b35; color: #000000 !important; }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
 
 /* Tables */
 .table-responsive { overflow-x: auto; }
@@ -102,6 +99,74 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .alert-info { background: #ff6b35; color: #000000; border: none; }
 .alert-warning { background: #ffc107; color: #000000; border: none; }
 
+/* Mobile Menu Modal */
+.mobile-menu-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+.mobile-menu-modal.active { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.mobile-menu-content {
+    background: #1a1a1a;
+    border-radius: 20px;
+    width: 85%;
+    max-width: 320px;
+    border: 1px solid #ff6b35;
+    animation: slideUp 0.3s ease;
+    overflow: hidden;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ff6b35;
+}
+.mobile-menu-header h5 { color: #ff6b35; margin: 0; font-weight: 600; }
+.close-menu-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+.close-menu-btn:hover { background: rgba(255, 107, 53, 0.2); }
+
+.mobile-menu-items { padding: 10px 0; }
+.mobile-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+.mobile-menu-item:hover { background: rgba(255, 107, 53, 0.1); color: #ff6b35; }
+.mobile-menu-item i { width: 24px; font-size: 18px; color: #ff6b35; }
+.mobile-menu-item span { font-size: 14px; font-weight: 500; }
+.mobile-menu-item.text-danger i,
+.mobile-menu-item.text-danger span { color: #dc3545; }
+
 /* Responsive */
 @media (max-width: 992px) {
     .main-content { margin-left: 0; margin-bottom: 65px; }
@@ -112,17 +177,14 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 @media (max-width: 768px) {
     .card-body { padding: 12px; }
     .btn { padding: 6px 12px; font-size: 12px; }
-    .bottom-nav-item { min-width: 45px; padding: 4px; }
-    .bottom-nav-item i { font-size: 16px; }
+    .bottom-nav-item { min-width: 50px; padding: 4px 6px; }
+    .bottom-nav-item i { font-size: 18px; }
     .form-control, .form-select { padding: 8px 10px; font-size: 13px; }
 }
 
 /* Input number spinner */
 input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-    opacity: 0.5;
-    background: #ff6b35;
-}
+input[type=number]::-webkit-outer-spin-button { opacity: 0.5; background: #ff6b35; }
 
 /* Text colors */
 .text-muted { color: #888 !important; }

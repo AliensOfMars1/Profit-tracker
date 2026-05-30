@@ -19,10 +19,6 @@
                         <label for="amount" class="form-label">Amount (GHS)</label>
                         <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="note" class="form-label">Note/Description</label>
-                        <textarea class="form-control" id="note" name="note" rows="3"></textarea>
-                    </div>
                     <button type="submit" class="btn btn-primary">Add Fund</button>
                 </form>
             </div>
@@ -31,8 +27,9 @@
     
     <div class="col-md-7 mb-4">
         <div class="card">
-            <div class="card-header bg-success">
-                <h5 class="mb-0" style="color: #ffffff;">Active Foreign Funds</h5>
+            <div class="card-header bg-success d-flex justify-content-between align-items-center">
+                <h5 class="mb-0" style="color: #ffffff;">Foreign Funds</h5>
+                <span style="color: #ffffff; font-weight: bold;">Total: GHS {{ "%.2f"|format(foreign_total) }}</span>
             </div>
             <div class="card-body">
                 {% if active_funds %}
@@ -42,7 +39,6 @@
                                 <tr>
                                     <th>Person</th>
                                     <th>Amount</th>
-                                    <th>Note</th>
                                     <th>Date Added</th>
                                     <th>Actions</th>
                                 </tr>
@@ -52,13 +48,11 @@
                                 <tr id="fund-row-{{ fund.id }}">
                                     <td style="color: #ffffff;">{{ fund.person_name }}</td>
                                     <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(fund.amount) }}</td>
-                                    <td style="color: #ffffff;">{{ fund.note[:50] }}</td>
                                     <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-info" onclick="showEditModal({{ fund.id }}, '{{ fund.person_name }}', {{ fund.amount }}, '{{ fund.note|replace("'", "\\'") }}')" style="color: #000000;">
+                                        <button class="btn btn-sm btn-info" onclick="showEditModal({{ fund.id }}, '{{ fund.person_name }}', {{ fund.amount }})" style="color: #000000;">
                                             <i class="fas fa-edit"></i> Edit
                                         </button>
-                                        <a href="{{ url_for('settle_foreign_fund', id=fund.id) }}" class="btn btn-sm btn-warning" onclick="return confirm('Mark as settled?')" style="color: #000000;">Settle</a>
                                         <a href="{{ url_for('delete_foreign_fund', id=fund.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this fund?')">Delete</a>
                                     </td>
                                 </tr>
@@ -67,42 +61,10 @@
                         </table>
                     </div>
                 {% else %}
-                    <p class="text-muted">No active foreign funds.</p>
+                    <p class="text-muted">No foreign funds.</p>
                 {% endif %}
             </div>
         </div>
-        
-        {% if settled_funds %}
-        <div class="card mt-4">
-            <div class="card-header bg-secondary">
-                <h5 class="mb-0" style="color: #ffffff;">Settled Foreign Funds</h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Person</th>
-                                <th>Amount</th>
-                                <th>Note</th>
-                                <th>Date Settled</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for fund in settled_funds %}
-                            <tr>
-                                <td style="color: #ffffff;">{{ fund.person_name }}</td>
-                                <td style="color: #ff6b35; font-weight: bold;">GHS {{ "%.2f"|format(fund.amount) }}</td>
-                                <td style="color: #ffffff;">{{ fund.note[:50] }}</td>
-                                <td style="color: #ffffff;">{{ fund.date_added.strftime('%Y-%m-%d') }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -125,10 +87,6 @@
                         <label for="edit_amount" class="form-label">Amount (GHS)</label>
                         <input type="number" step="0.01" class="form-control" id="edit_amount" name="amount" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit_note" class="form-label">Note/Description</label>
-                        <textarea class="form-control" id="edit_note" name="note" rows="3"></textarea>
-                    </div>
                     <button type="submit" class="btn btn-primary">Update Fund</button>
                 </form>
             </div>
@@ -137,11 +95,10 @@
 </div>
 
 <script>
-    function showEditModal(id, name, amount, note) {
+    function showEditModal(id, name, amount) {
         document.getElementById('edit_fund_id').value = id;
         document.getElementById('edit_person_name').value = name;
         document.getElementById('edit_amount').value = amount;
-        document.getElementById('edit_note').value = note;
         document.getElementById('editForm').action = "{{ url_for('edit_foreign_fund') }}";
         
         var myModal = new bootstrap.Modal(document.getElementById('editModal'));
