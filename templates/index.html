@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>P2P Liquidity Manager - Secure Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700&display=swap" rel="stylesheet">
+    <title>P2P Profit Tracker - Discover Attractions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -16,9 +16,24 @@
 
         body {
             font-family: 'Manrope', sans-serif;
-            background: #f5f5f0;
+            background: #0a0a0a;
             min-height: 100vh;
             overflow-x: hidden;
+        }
+
+        /* Dark Theme Styles */
+        .dark-bg {
+            background: #0a0a0a;
+        }
+
+        /* Gradient Background - Darker */
+        .gradient-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            overflow: hidden;
+            opacity: 0.15;
+            pointer-events: none;
         }
 
         /* PIN Modal Overlay */
@@ -28,8 +43,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(15px);
             z-index: 2000;
             display: flex;
             align-items: center;
@@ -45,14 +60,15 @@
         }
 
         .pin-card {
-            background: white;
+            background: #1a1a1a;
             border-radius: 32px;
             padding: 40px;
             width: 90%;
             max-width: 400px;
             text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
             animation: fadeInUp 0.5s ease;
+            border: 1px solid #ff6b35;
         }
 
         @keyframes fadeInUp {
@@ -61,13 +77,13 @@
         }
 
         .pin-card h2 {
-            color: #1c1917;
+            color: #ff6b35;
             margin-bottom: 10px;
             font-size: 28px;
         }
 
         .pin-card p {
-            color: #78716c;
+            color: #aaa;
             margin-bottom: 30px;
         }
 
@@ -77,26 +93,28 @@
             font-size: 28px;
             text-align: center;
             letter-spacing: 12px;
-            border: 2px solid #e7e5e4;
+            border: 2px solid #ff6b35;
             border-radius: 16px;
             font-weight: bold;
             font-family: monospace;
             margin-bottom: 20px;
+            background: #0a0a0a;
+            color: #ff6b35;
         }
 
         .pin-input:focus {
             outline: none;
-            border-color: #a3e635;
-            box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.2);
+            border-color: #ff8c42;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
         }
 
         .pin-submit {
             width: 100%;
             padding: 14px;
-            background: #1c1917;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             border: none;
             border-radius: 16px;
-            color: white;
+            color: #000;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -107,9 +125,9 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(255,107,53,0.2);
             border: none;
-            color: white;
+            color: #ff6b35;
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -131,7 +149,7 @@
             position: fixed;
             bottom: 24px;
             right: 24px;
-            background: #1c1917;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             border: none;
             width: 56px;
             height: 56px;
@@ -140,14 +158,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             z-index: 1000;
         }
 
         .unlock-btn i {
             font-size: 24px;
-            color: #a3e635;
+            color: #000;
         }
 
         /* Flash Message */
@@ -173,66 +191,140 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
-        /* Fun Fact Card Styles */
-        .fact-container {
+        /* Attraction Card Styles - Dark Theme */
+        .attraction-container {
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
             margin: 0 auto;
-            background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-            border-radius: 24px;
-            padding: 40px 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            text-align: center;
-            min-height: 280px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border: 1px solid rgba(163, 230, 53, 0.3);
+            background: #111111;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid #ff6b35;
+            transition: transform 0.3s ease;
         }
 
-        .fact-icon {
-            font-size: 48px;
-            color: #a3e635;
+        .attraction-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .attraction-image {
+            width: 100%;
+            height: 280px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .attraction-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .attraction-category {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #000;
+        }
+
+        .attraction-content {
+            padding: 24px;
+        }
+
+        .attraction-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+
+        .attraction-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .attraction-location i {
+            color: #ff6b35;
+            font-size: 12px;
+        }
+
+        .attraction-history {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.6;
             margin-bottom: 20px;
         }
 
-        .fact-text {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #ffffff;
-            font-weight: 500;
-            margin-bottom: 25px;
+        .attraction-divider {
+            height: 1px;
+            background: linear-gradient(90deg, #ff6b35, transparent);
+            margin: 16px 0;
         }
 
-        .fact-button {
-            background: #a3e635;
+        .randomize-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             border: none;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border-radius: 50px;
             font-size: 16px;
             font-weight: 600;
-            color: #1c1917;
+            color: #000;
             cursor: pointer;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            margin-top: 10px;
+            gap: 10px;
+            margin-top: 8px;
         }
 
-        .fact-button:hover {
+        .randomize-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(163, 230, 53, 0.3);
+            box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
         }
 
-        .fact-button:disabled {
+        .randomize-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .fact-loading {
-            opacity: 0.7;
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #000;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Placeholder image style */
+        .placeholder-image {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder-image i {
+            font-size: 64px;
+            color: #ff6b35;
+            opacity: 0.5;
         }
 
         @media (max-width: 768px) {
@@ -242,34 +334,47 @@
             .unlock-btn { bottom: 16px; right: 16px; width: 48px; height: 48px; }
             .unlock-btn i { font-size: 20px; }
             .flash-message { top: auto; bottom: 80px; right: 16px; left: 16px; }
-            .fact-container { padding: 30px 20px; min-height: 240px; }
-            .fact-text { font-size: 16px; }
+            .attraction-container { max-width: 100%; }
+            .attraction-image { height: 220px; }
+            .attraction-name { font-size: 20px; }
         }
 
         @media (max-width: 480px) {
             .pin-input { font-size: 18px; letter-spacing: 4px; }
             .pin-card { padding: 20px 16px; }
-            .fact-container { padding: 25px 15px; }
-            .fact-text { font-size: 14px; }
+            .attraction-image { height: 180px; }
+            .attraction-content { padding: 18px; }
+        }
+
+        /* Scrollbar - Dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff6b35;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
 
-<!-- Main Content -->
-<section style="background: #f5f5f0; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10;">
+<!-- Main Content - Discover Attractions -->
+<section style="background: #0a0a0a; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10;">
   
   <!-- Gradient Background -->
-  <div style="position: absolute; inset: 0; z-index: -10; overflow: hidden; opacity: 0.3; pointer-events: none;">
+  <div class="gradient-bg">
     <svg style="width: 100%; height: 100%; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(1.25);" viewBox="0 0 1425 1119" xmlns="http://www.w3.org/2000/svg">
       <radialGradient id="gradient" cx="712.5" cy="559.5" gradientUnits="userSpaceOnUse" r="640.5843">
-        <stop offset="0" stop-color="#d7ff96"/>
-        <stop offset=".2705" stop-color="#d5fe93"/>
-        <stop offset=".4613" stop-color="#d1fc8a"/>
-        <stop offset=".6276" stop-color="#c8f87a"/>
-        <stop offset=".7799" stop-color="#bcf264"/>
-        <stop offset=".9212" stop-color="#adeb48"/>
-        <stop offset="1" stop-color="#a3e635"/>
+        <stop offset="0" stop-color="#ff6b35"/>
+        <stop offset=".2705" stop-color="#ff7a42"/>
+        <stop offset=".4613" stop-color="#ff894f"/>
+        <stop offset=".6276" stop-color="#ff985c"/>
+        <stop offset=".7799" stop-color="#ffa769"/>
+        <stop offset=".9212" stop-color="#ffb676"/>
+        <stop offset="1" stop-color="#ffc583"/>
       </radialGradient>
       <path d="m76.6 98c102.5-76.8 532.4-197 253.5 48.8s251.7 32.8 343.7 81.6-69.5 382.7-226.3 342.4-204.7-249.6-340-143.6-139.9-247.6-30.9-329.2zm983.4 868.8c118.6-107.8 166.1-217.7 314.9-310.3 148.8-92.7-73.3-140.1-155.3-60.3-82 79.7-166.8-10.9-256.6 142.2-73.3 125-21.6 336.2 97 228.4zm-899.1-142.6c23.1-38.3 225.3 16.2 235.8 91.7 6.7 48.7-69.5 82.1-57.6 136.3 10.2 46.4 77.6 73.3 83.8 65.5 14.7-18.2-293.7-241-262-293.5z" fill="url(#gradient)"/>
     </svg>
@@ -279,28 +384,24 @@
     
     <!-- Left Column - Text -->
     <div style="display: flex; flex-direction: column; justify-content: center; text-align: center;">
-      <span style="display: inline-block; align-self: center; padding: 4px 12px; margin-bottom: 16px; border-radius: 9999px; background: #a3e635; font-weight: 500; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">Secure Access</span>
-      <h1 style="margin-bottom: 16px; font-size: clamp(28px, 8vw, 56px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2;">P2P Liquidity Manager</h1>
-      <p style="color: #78716c; font-size: clamp(16px, 4vw, 20px);">Track your P2P merchant profits, manage funds, and analyze growth.</p>
+      <span style="display: inline-block; align-self: center; padding: 6px 14px; margin-bottom: 20px; border-radius: 9999px; background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #000;">Discover the World</span>
+      <h1 style="margin-bottom: 16px; font-size: clamp(28px, 8vw, 56px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; color: #ff6b35;">P2P Profit Tracker</h1>
+      <p style="color: #aaa; font-size: clamp(16px, 4vw, 20px);">Track your P2P  profits, manage funds, and analyze growth but while you wait exploring amazing destinations around the globe.</p>
     </div>
     
-    <!-- Right Column - Fun Fact Card -->
+    <!-- Right Column - Attraction Card -->
     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
       
-      <div id="factContainer" class="fact-container">
-        <div class="fact-icon">
-          <i class="fas fa-lightbulb"></i>
-        </div>
-        <div class="fact-text" id="factText">
-          Click the button below to discover a random fun fact!
-        </div>
-        <button id="fetchFactBtn" class="fact-button">
-          <i class="fas fa-dice-d6"></i> Random Fun Fact
-        </button>
+      <div id="attractionContainer" class="attraction-container">
+        <!-- Dynamic content will be inserted here -->
       </div>
       
-      <div style="font-size: 11px; padding: 12px; color: #111110; margin-top: 8px; text-align: center;">
-        <span>✨ Discover something new with every click ✨</span>
+      <button id="randomizeBtn" class="randomize-btn">
+        <i class="fas fa-globe-americas"></i> Random Attraction
+      </button>
+      
+      <div style="font-size: 11px; padding: 16px; color: #ff6b35; margin-top: 8px; text-align: center; opacity: 0.7;">
+        <span> Discover iconic landmarks and hidden gems from around the world </span>
       </div>
       
     </div>
@@ -318,7 +419,7 @@
 <div class="pin-overlay" id="pinOverlay">
     <button class="close-pin" id="closePin">&times;</button>
     <div class="pin-card">
-        <div><i class="fas fa-chart-line" style="font-size: 50px; color: #a3e635;"></i></div>
+        <div><i class="fas fa-chart-line" style="font-size: 50px; color: #ff6b35;"></i></div>
         <h2>Enter PIN</h2>
         <p>Enter your PIN to access the dashboard</p>
         <form id="pinForm" method="POST" action="{{ url_for('index') }}">
@@ -340,60 +441,146 @@
 
 <script>
     (function() {
-        // Fun Fact API Logic
-        const fetchBtn = document.getElementById('fetchFactBtn');
-        const factText = document.getElementById('factText');
-        const factContainer = document.getElementById('factContainer');
-        
-        // Fallback facts in case API fails
-        const fallbackFacts = [
-            "Did you know? Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs that was still edible!",
-            "Octopuses have three hearts. Two pump blood to the gills, while the third pumps it to the rest of the body.",
-            "A day on Venus is longer than a year on Venus. It takes 243 Earth days to rotate once, but only 225 to orbit the Sun.",
-            "The Eiffel Tower can grow more than 6 inches (15 cm) in summer due to thermal expansion.",
-            "Bananas are technically berries, but strawberries are not!",
-            "There are more possible iterations of a game of chess than there are atoms in the known universe.",
-            "A group of flamingos is called a 'flamboyance'.",
-            "The shortest war in history lasted only 38 minutes between Britain and Zanzibar in 1896.",
-            "Cows have best friends and get stressed when separated from them.",
-            "The first oranges weren't orange - they were green."
+        // Comprehensive attraction data with images and historical information
+        const attractions = [
+            {
+                name: "Eiffel Tower",
+                location: "Paris, France",
+                category: "Landmark",
+                history: "Built in 1889 for the World's Fair, the Eiffel Tower was initially criticized by Paris's artistic community. Today, it's the most-visited paid monument in the world, standing at 330 meters tall with three levels for visitors.",
+                imageUrl: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&h=500&fit=crop",
+                coordinates: "48.8584° N, 2.2945° E"
+            },
+            {
+                name: "Machu Picchu",
+                location: "Cusco Region, Peru",
+                category: "Ancient City",
+                history: "Built in the 15th century for Inca emperor Pachacuti, Machu Picchu was abandoned during the Spanish conquest and remained hidden from the outside world until 1911 when Hiram Bingham brought it to international attention.",
+                imageUrl: "https://images.unsplash.com/photo-1526392060635-5d5f9ef2c6b6?w=800&h=500&fit=crop",
+                coordinates: "13.1631° S, 72.5450° W"
+            },
+            {
+                name: "Great Wall of China",
+                location: "Northern China",
+                category: "Ancient Wonder",
+                history: "Construction began as early as the 7th century BC, with most of the existing wall built during the Ming Dynasty (1368-1644). The wall stretches over 13,000 miles, making it the longest structure ever built by humans.",
+                imageUrl: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=800&h=500&fit=crop",
+                coordinates: "40.4319° N, 116.5704° E"
+            },
+            {
+                name: "Colosseum",
+                location: "Rome, Italy",
+                category: "Ancient Amphitheater",
+                history: "Completed in 80 AD under Emperor Titus, the Colosseum could hold up to 80,000 spectators. It hosted gladiatorial contests, animal hunts, and mock naval battles for over four centuries.",
+                imageUrl: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&h=500&fit=crop",
+                coordinates: "41.8902° N, 12.4922° E"
+            },
+            {
+                name: "Taj Mahal",
+                location: "Agra, India",
+                category: "Mausoleum",
+                history: "Built by Mughal Emperor Shah Jahan between 1631-1653 in memory of his wife Mumtaz Mahal. It's considered the finest example of Mughal architecture, combining elements from Persian, Islamic, and Indian styles.",
+                imageUrl: "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=500&fit=crop",
+                coordinates: "27.1751° N, 78.0421° E"
+            },
+            {
+                name: "Pyramids of Giza",
+                location: "Cairo, Egypt",
+                category: "Ancient Wonder",
+                history: "Built as tombs for pharaohs over 4,500 years ago, the Great Pyramid is the oldest of the Seven Wonders of the Ancient World and the only one still largely intact. Each stone weighs up to 80 tons.",
+                imageUrl: "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?w=800&h=500&fit=crop",
+                coordinates: "29.9792° N, 31.1342° E"
+            },
+            {
+                name: "Sagrada Familia",
+                location: "Barcelona, Spain",
+                category: "Basilica",
+                history: "Designed by Antoni Gaudí, construction began in 1882 and continues to this day. Gaudí dedicated the last 15 years of his life entirely to this project, and it's expected to be completed in 2026.",
+                imageUrl: "https://images.unsplash.com/photo-1539037116277-4db20889f2d4?w=800&h=500&fit=crop",
+                coordinates: "41.4036° N, 2.1744° E"
+            },
+            {
+                name: "Christ the Redeemer",
+                location: "Rio de Janeiro, Brazil",
+                category: "Statue",
+                history: "Completed in 1931, this 30-meter tall statue of Jesus stands atop Corcovado Mountain. It has become an iconic symbol of Christianity and Brazilian culture, with arms stretching 28 meters wide.",
+                imageUrl: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&h=500&fit=crop",
+                coordinates: "22.9519° S, 43.2105° W"
+            },
+            {
+                name: "Petra",
+                location: "Ma'an Governorate, Jordan",
+                category: "Ancient City",
+                history: "Established as early as 312 BC as the capital of the Nabataean Kingdom. Known as the 'Rose City' for its pink stone architecture, it was lost to the Western world until 1812 when discovered by Swiss explorer Johann Ludwig Burckhardt.",
+                imageUrl: "https://images.unsplash.com/photo-1579605179892-1815e4b3ddf9?w=800&h=500&fit=crop",
+                coordinates: "30.3285° N, 35.4444° E"
+            },
+            {
+                name: "Sydney Opera House",
+                location: "Sydney, Australia",
+                category: "Performing Arts Center",
+                history: "Designed by Danish architect Jørn Utzon and opened in 1973. Its distinctive shell-like design has made it one of the most photographed buildings in the world, hosting over 1,500 performances annually.",
+                imageUrl: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?w=800&h=500&fit=crop",
+                coordinates: "33.8568° S, 151.2153° E"
+            }
         ];
         
-        async function fetchRandomFact() {
-            // Show loading state
-            fetchBtn.disabled = true;
-            factContainer.classList.add('fact-loading');
-            factText.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Searching for a fun fact...';
-            
-            try {
-                // Fetch a random fact in English
-                const response = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en');
-                
-                if (!response.ok) {
-                    throw new Error(`API responded with status ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const fact = data.text;
-                
-                // Display the fetched fact
-                factText.innerHTML = `<i class="fas fa-quote-left" style="margin-right: 8px; color: #a3e635;"></i> ${fact}`;
-                
-            } catch (error) {
-                console.error('Failed to fetch fact:', error);
-                // Use random fallback fact
-                const randomFallback = fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
-                factText.innerHTML = `<i class="fas fa-lightbulb" style="margin-right: 8px; color: #a3e635;"></i> ${randomFallback}`;
-            } finally {
-                fetchBtn.disabled = false;
-                factContainer.classList.remove('fact-loading');
-            }
+        let currentAttractionIndex = 0;
+        
+        const attractionContainer = document.getElementById('attractionContainer');
+        const randomizeBtn = document.getElementById('randomizeBtn');
+        
+        // Function to display an attraction
+        function displayAttraction(attraction) {
+            attractionContainer.innerHTML = `
+                <div class="attraction-image">
+                    <img src="${attraction.imageUrl}" alt="${attraction.name}" onerror="this.src='https://placehold.co/800x500/2a2a2a/ff6b35?text=Landmark+Image'">
+                    <span class="attraction-category">${attraction.category}</span>
+                </div>
+                <div class="attraction-content">
+                    <h2 class="attraction-name">${attraction.name}</h2>
+                    <div class="attraction-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${attraction.location}</span>
+                    </div>
+                    <div class="attraction-history">
+                        ${attraction.history}
+                    </div>
+                    <div class="attraction-divider"></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                        <span style="color: #888;"><i class="fas fa-compass"></i> ${attraction.coordinates}</span>
+                        <span style="color: #ff6b35;"><i class="fas fa-heart"></i> Must Visit</span>
+                    </div>
+                </div>
+            `;
         }
         
-        // Attach event listener
-        if (fetchBtn) {
-            fetchBtn.addEventListener('click', fetchRandomFact);
+        // Function to display random attraction
+        function displayRandomAttraction() {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * attractions.length);
+            } while (newIndex === currentAttractionIndex && attractions.length > 1);
+            
+            currentAttractionIndex = newIndex;
+            displayAttraction(attractions[currentAttractionIndex]);
         }
+        
+        // Initial display
+        displayRandomAttraction();
+        
+        // Randomize button event
+        randomizeBtn.addEventListener('click', () => {
+            // Add loading effect
+            randomizeBtn.disabled = true;
+            randomizeBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+            
+            setTimeout(() => {
+                displayRandomAttraction();
+                randomizeBtn.innerHTML = '<i class="fas fa-globe-americas"></i> Random Attraction';
+                randomizeBtn.disabled = false;
+            }, 300);
+        });
         
         // PIN Modal Functionality
         const unlockBtn = document.getElementById('unlockBtn');
