@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3" style="color: #ff6b35; font-size: 24px;">📊 Monthly Calculation History</h1>
+<p style="color: #aaa; margin-bottom: 20px;">
+    All calculations made in <strong style="color: #ff6b35;">{{ current_month_name }}</strong>. 
+    Auto-clears when entering a new month.
+</p>
+
+<!-- Summary Cards -->
+<div class="row g-2 mb-4">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-primary" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Total Profit</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(summary.total_profit) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-info" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Total Commission</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(summary.total_commission) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-warning" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Earned from Rate</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(summary.earned_from_rate) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-secondary" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #ffffff;">Calculations</small>
+                <h4 style="color: #ffffff; margin: 0;">{{ summary.calculation_count }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calculation History Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0" style="color: #000000; font-size: 14px;">
+            <i class="fas fa-list"></i> All Calculations This Month
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if calculations %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Profit</th>
+                            <th>Commission</th>
+                            <th>Earned from Rate</th>
+                            <th>Avg Daily</th>
+                            <th>Projected</th>
+                            <!-- <th>USDT</th> -->
+                            <th>Rate</th>
+                            <!-- <th>eCash</th> -->
+                            <!-- <th>Lent</th> -->
+                            <!-- <th>Foreign</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for calc in calculations %}
+                        <tr>
+                            <td style="color: #ffffff; font-size: 12px; white-space: nowrap;">
+                                {{ calc.created_at.strftime('%b %d, %Y %I:%M %p') }}
+                            </td>
+                            <td style="color: #ff6b35; font-weight: bold; font-size: 14px;">
+                                GHS {{ "%.2f"|format(calc.profit) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.cashin_commission + calc.cashout_commission) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.profit - (calc.cashin_commission + calc.cashout_commission)) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.daily_average) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.projected_profit) }}
+                            </td>
+                            <!-- <td style="color: #ffffff; font-size: 13px;">
+                                ${{ "%.2f"|format(calc.total_usdt) }}
+                            </td> -->
+                            <td style="color: #ffffff; font-size: 13px;">
+                                {{ "%.2f"|format(calc.rate) }}
+                            </td>
+                            <!-- <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.ecash) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.lent_funds) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.foreign_funds) }}
+                            </td> -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No calculations found for this month. Start by creating a new calculation!</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Auto-clear Notice -->
+<div class="mt-4 text-center">
+    <small style="color: #666;">
+        <i class="fas fa-arrow-rotate-right"></i> 
+        History auto-clears when entering a new month. 
+        Current month: <strong style="color: #ff6b35;">{{ current_month_name }}</strong>
+    </small>
+</div>
+{% endblock %}
