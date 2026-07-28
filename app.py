@@ -464,6 +464,41 @@ def reports():
                          avg_daily_profit=avg_daily,
                          projected_profit=projected)
 
+
+@app.route('/history')
+@login_required
+def history():
+    today = date.today()
+    current_month = today.month
+    current_year = today.year
+    
+    # Get ALL calculations for current month
+    calculations = Calculation.query.filter_by(
+        year=current_year,
+        month=current_month
+    ).order_by(Calculation.created_at.desc()).all()
+    
+    # Calculate summary for current month
+    summary = {
+        'total_profit': Decimal('0'),
+        'total_commission': Decimal('0'),
+        'earned_from_rate': Decimal('0'),
+        'calculation_count': len(calculations)
+    }
+    
+    for calc in calculations:
+        commission = calc.cashin_commission + calc.cashout_commission
+        summary['total_profit'] += calc.profit
+        summary['total_commission'] += commission
+        summary['earned_from_rate'] += (calc.profit - commission)
+    
+    current_month_name = today.strftime('%B %Y')
+    
+    return render_template('history.html',
+                         calculations=calculations,
+                         summary=summary,
+                         current_month_name=current_month_name)
+
 @app.route('/growth-trend')
 @login_required
 def growth_trend():
