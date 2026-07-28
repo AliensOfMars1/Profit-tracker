@@ -165,7 +165,7 @@ def dashboard():
                          equity_setting=equity_setting,
                          total_commission=total_commission,
                          earn_from_rate=earn_from_rate,
-                         available_funds=available_funds)  # ← ADD THIS
+                         available_funds=available_funds)
 
 @app.route('/calculation', methods=['GET', 'POST'])
 @login_required
@@ -251,9 +251,8 @@ def calculation():
 def foreign_funds():
     active_funds = ForeignFund.query.filter_by(status='active').order_by(ForeignFund.date_added.desc()).all()
     settled_funds = ForeignFund.query.filter_by(status='settled').order_by(ForeignFund.date_added.desc()).all()
-    foreign_total = get_total_foreign_funds()  # Add this line
+    foreign_total = get_total_foreign_funds()
     return render_template('foreign_funds.html', active_funds=active_funds, settled_funds=settled_funds, foreign_total=foreign_total)
-
 
 @app.route('/foreign-funds/add', methods=['POST'])
 @login_required
@@ -321,7 +320,7 @@ def delete_foreign_fund(id):
 def lent_funds():
     active_funds = LentFund.query.filter_by(status='active').order_by(LentFund.date_lent.desc()).all()
     paid_funds = LentFund.query.filter_by(status='paid').order_by(LentFund.date_lent.desc()).all()
-    lent_total = get_total_lent_funds()  # Add this line
+    lent_total = get_total_lent_funds()
     return render_template('lent_funds.html', active_funds=active_funds, paid_funds=paid_funds, lent_total=lent_total)
 
 @app.route('/lent-funds/add', methods=['POST'])
@@ -464,41 +463,6 @@ def reports():
                          avg_daily_profit=avg_daily,
                          projected_profit=projected)
 
-
-@app.route('/history')
-@login_required
-def history():
-    today = date.today()
-    current_month = today.month
-    current_year = today.year
-    
-    # Get ALL calculations for current month
-    calculations = Calculation.query.filter_by(
-        year=current_year,
-        month=current_month
-    ).order_by(Calculation.created_at.desc()).all()
-    
-    # Calculate summary for current month
-    summary = {
-        'total_profit': Decimal('0'),
-        'total_commission': Decimal('0'),
-        'earned_from_rate': Decimal('0'),
-        'calculation_count': len(calculations)
-    }
-    
-    for calc in calculations:
-        commission = calc.cashin_commission + calc.cashout_commission
-        summary['total_profit'] += calc.profit
-        summary['total_commission'] += commission
-        summary['earned_from_rate'] += (calc.profit - commission)
-    
-    current_month_name = today.strftime('%B %Y')
-    
-    return render_template('history.html',
-                         calculations=calculations,
-                         summary=summary,
-                         current_month_name=current_month_name)
-
 @app.route('/growth-trend')
 @login_required
 def growth_trend():
@@ -551,12 +515,54 @@ def growth_trend():
     
     return render_template('growth_trend.html', chart_data=chart_data, table_data=table_data)
 
+# ==================== HISTORY ROUTE ====================
+
+@app.route('/history')
+@login_required
+def history():
+    today = date.today()
+    current_month = today.month
+    current_year = today.year
+    
+    # Get ALL calculations for current month (ordered by date, newest first)
+    calculations = Calculation.query.filter_by(
+        year=current_year,
+        month=current_month
+    ).order_by(Calculation.created_at.desc()).all()
+    
+    # Get the latest calculation (most recent)
+    latest_calc = calculations[0] if calculations else None
+    
+    # Build final summary using ONLY the LATEST calculation
+    if latest_calc:
+        commission = latest_calc.cashin_commission + latest_calc.cashout_commission
+        final_summary = {
+            'profit': latest_calc.profit,
+            'commission': commission,
+            'earned_from_rate': latest_calc.profit - commission
+        }
+    else:
+        final_summary = {
+            'profit': Decimal('0'),
+            'commission': Decimal('0'),
+            'earned_from_rate': Decimal('0')
+        }
+    
+    current_month_name = today.strftime('%B %Y')
+    
+    return render_template('history.html',
+                         calculations=calculations,
+                         final_summary=final_summary,
+                         current_month_name=current_month_name)
+
+# ==================== MAIN BLOCK ====================
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     
+
     # Get port from environment variable (Railway sets this)
     port = int(os.environ.get('PORT', 5000))
     
-    # Use debug=False in production
     app.run(host='0.0.0.0', port=port, debug=True)
