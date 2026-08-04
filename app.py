@@ -534,7 +534,7 @@ def history():
         month=selected_month
     ).order_by(Calculation.created_at.desc()).all()
     
-    # Get the latest calculation (most recent) for the selected month
+    # Get the latest calculation (most recent)
     latest_calc = calculations[0] if calculations else None
     
     # Build final summary using ONLY the LATEST calculation
@@ -552,14 +552,26 @@ def history():
             'earned_from_rate': Decimal('0')
         }
     
-    selected_month_name = date(selected_year, selected_month, 1).strftime('%B %Y')
+    # Pre-format month names for display
+    selected_month_name = f"{date(selected_year, selected_month, 1).strftime('%B')} {selected_year}"
     current_month_name = today.strftime('%B %Y')
     
-    # Get list of all months that have data
+    # Get list of all months that have data (pre-formatted)
     available_months = db.session.query(
         Calculation.year,
         Calculation.month
     ).distinct().order_by(Calculation.year.desc(), Calculation.month.desc()).all()
+    
+    # Pre-format available months
+    formatted_months = []
+    for m in available_months:
+        month_name = f"{date(m.year, m.month, 1).strftime('%B')} {m.year}"
+        formatted_months.append({
+            'year': m.year,
+            'month': m.month,
+            'name': month_name,
+            'value': f"{m.month}-{m.year}"
+        })
     
     return render_template('history.html',
                          calculations=calculations,
@@ -568,20 +580,8 @@ def history():
                          current_month_name=current_month_name,
                          selected_month=selected_month,
                          selected_year=selected_year,
-                         available_months=available_months)
+                         available_months=formatted_months)
 
-@app.route('/delete-calculation/<int:id>', methods=['POST'])
-@login_required
-def delete_calculation(id):
-    try:
-        calc = Calculation.query.get_or_404(id)
-        calc_date = calc.created_at
-        db.session.delete(calc)
-        db.session.commit()
-        flash(f'Calculation from {calc_date.strftime("%B %d, %Y")} deleted successfully!', 'success')
-    except Exception as e:
-        flash(f'Error deleting calculation: {str(e)}', 'error')
-    return redirect(url_for('history'))
 
 @app.route('/edit-calculation/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -624,6 +624,21 @@ def edit_calculation(id):
             flash(f'Error updating calculation: {str(e)}', 'error')
     
     return render_template('edit_calculation.html', calc=calc)
+
+@app.route('/delete-calculation/<int:id>', methods=['POST'])
+@login_required
+def delete_calculation(id):
+    try:
+        calc = Calculation.query.get_or_404(id)
+        calc_date = calc.created_at
+        db.session.delete(calc)
+        db.session.commit()
+        flash(f'Calculation from {calc_date.strftime("%B %d, %Y")} deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting calculation: {str(e)}', 'error')
+    return redirect(url_for('history'))
+
+
 
 # ==================== MAIN BLOCK ====================
 
