@@ -638,15 +638,11 @@ def delete_calculation(id):
         flash(f'Error deleting calculation: {str(e)}', 'error')
     return redirect(url_for('history'))
 
-
-
 # ==================== MAIN BLOCK ====================
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    
-    
 
     # Get port from environment variable (Railway sets this)
     port = int(os.environ.get('PORT', 5000))
