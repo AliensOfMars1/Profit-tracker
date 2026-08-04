@@ -625,6 +625,10 @@ def edit_calculation(id):
     
     return render_template('edit_calculation.html', calc=calc)
 
+
+# ==================== CORRECTED DELETE ROUTE ====================
+# The route must include <int:id> to capture the ID from the URL
+
 @app.route('/delete-calculation/<int:id>', methods=['POST'])
 @login_required
 def delete_calculation(id):
@@ -638,12 +642,14 @@ def delete_calculation(id):
         flash(f'Error deleting calculation: {str(e)}', 'error')
     return redirect(url_for('history'))
 
+
 # ==================== MAIN BLOCK ====================
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
+    
     # Get port from environment variable (Railway sets this)
     port = int(os.environ.get('PORT', 5000))
     
