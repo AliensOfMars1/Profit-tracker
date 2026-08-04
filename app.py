@@ -524,13 +524,17 @@ def history():
     current_month = today.month
     current_year = today.year
     
-    # Get ALL calculations for current month (ordered by date, newest first)
+    # Get month/year from query parameters (default to current month)
+    selected_month = request.args.get('month', type=int, default=current_month)
+    selected_year = request.args.get('year', type=int, default=current_year)
+    
+    # Get ALL calculations for the selected month
     calculations = Calculation.query.filter_by(
-        year=current_year,
-        month=current_month
+        year=selected_year,
+        month=selected_month
     ).order_by(Calculation.created_at.desc()).all()
     
-    # Get the latest calculation (most recent)
+    # Get the latest calculation (most recent) for the selected month
     latest_calc = calculations[0] if calculations else None
     
     # Build final summary using ONLY the LATEST calculation
@@ -548,18 +552,85 @@ def history():
             'earned_from_rate': Decimal('0')
         }
     
+    selected_month_name = date(selected_year, selected_month, 1).strftime('%B %Y')
     current_month_name = today.strftime('%B %Y')
+    
+    # Get list of all months that have data
+    available_months = db.session.query(
+        Calculation.year,
+        Calculation.month
+    ).distinct().order_by(Calculation.year.desc(), Calculation.month.desc()).all()
     
     return render_template('history.html',
                          calculations=calculations,
                          final_summary=final_summary,
-                         current_month_name=current_month_name)
+                         selected_month_name=selected_month_name,
+                         current_month_name=current_month_name,
+                         selected_month=selected_month,
+                         selected_year=selected_year,
+                         available_months=available_months)
+
+@app.route('/delete-calculation/<int:id>', methods=['POST'])
+@login_required
+def delete_calculation(id):
+    try:
+        calc = Calculation.query.get_or_404(id)
+        calc_date = calc.created_at
+        db.session.delete(calc)
+        db.session.commit()
+        flash(f'Calculation from {calc_date.strftime("%B %d, %Y")} deleted successfully!', 'success')
+    except Exception as e:
+        flash(f'Error deleting calculation: {str(e)}', 'error')
+    return redirect(url_for('history'))
+
+@app.route('/edit-calculation/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_calculation(id):
+    calc = Calculation.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            calc.equity = Decimal(request.form['equity'])
+            calc.total_usdt = Decimal(request.form['total_usdt'])
+            calc.rate = Decimal(request.form['rate'])
+            calc.ecash = Decimal(request.form['ecash'])
+            calc.hard_cash = Decimal(request.form['hard_cash'])
+            calc.cashin_commission = Decimal(request.form['cashin_commission'])
+            calc.cashout_commission = Decimal(request.form['cashout_commission'])
+            calc.foreign_funds = Decimal(request.form['foreign_funds'])
+            calc.lent_funds = Decimal(request.form['lent_funds'])
+            
+            # Recalculate profit
+            locked_asset = get_latest_setting('locked_asset')
+            ref_rate = get_latest_setting('ref_rate')
+            
+            profit_data = calculate_profit(
+                calc.equity, calc.total_usdt, calc.rate, 
+                calc.ecash, calc.hard_cash,
+                calc.cashin_commission, calc.cashout_commission,
+                calc.foreign_funds, calc.lent_funds,
+                locked_asset, ref_rate
+            )
+            
+            calc.profit = profit_data['total_profit']
+            calc.operating_profit = profit_data['operating_profit']
+            calc.locked_asset_gain_loss = profit_data['locked_asset_gain_loss']
+            
+            db.session.commit()
+            flash('Calculation updated successfully!', 'success')
+            return redirect(url_for('history'))
+            
+        except Exception as e:
+            flash(f'Error updating calculation: {str(e)}', 'error')
+    
+    return render_template('edit_calculation.html', calc=calc)
 
 # ==================== MAIN BLOCK ====================
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+    
     
 
     # Get port from environment variable (Railway sets this)
