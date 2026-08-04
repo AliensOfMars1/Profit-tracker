@@ -1,12 +1,202 @@
-@app.route('/delete-calculation/<int:id>', methods=['POST'])
-@login_required
-def delete_calculation(id):
-    try:
-        calc = Calculation.query.get_or_404(id)
-        calc_date = calc.created_at
-        db.session.delete(calc)
-        db.session.commit()
-        flash(f'Calculation from {calc_date.strftime("%B %d, %Y")} deleted successfully!', 'success')
-    except Exception as e:
-        flash(f'Error deleting calculation: {str(e)}', 'error')
-    return redirect(url_for('history'))
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-3" style="color: #ff6b35; font-size: 24px;">📊 Monthly Calculation History</h1>
+
+<!-- Month Filter -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label class="form-label" style="color: #ff6b35; font-weight: 500;">
+            <i class="fas fa-calendar-alt"></i> Select Month
+        </label>
+        <select id="monthSelector" class="form-select" style="background: #1a1a1a; color: #ff6b35; border-color: #ff6b35;">
+            {% for month in available_months %}
+                <option value="{{ month.value }}" 
+                        {% if selected_month == month.month and selected_year == month.year %}selected{% endif %}>
+                    {{ month.name }}
+                </option>
+            {% endfor %}
+            {% if not available_months %}
+                <option value="">No data available</option>
+            {% endif %}
+        </select>
+        <small style="color: #666;">
+            <i class="fas fa-info-circle"></i> 
+            Showing: <strong style="color: #ff6b35;">{{ selected_month_name }}</strong>
+            {% if selected_month_name != current_month_name %}
+                <span style="color: #aaa;">(Past month)</span>
+            {% else %}
+                <span style="color: #aaa;">(Current month - auto-clears next month)</span>
+            {% endif %}
+        </small>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button id="viewMonthBtn" class="btn btn-primary" style="width: 100%;">
+            <i class="fas fa-eye"></i> View Selected Month
+        </button>
+    </div>
+    <div class="col-md-4 d-flex align-items-end justify-content-end">
+        <a href="{{ url_for('history') }}" class="btn btn-secondary" style="width: 100%;">
+            <i class="fas fa-undo"></i> Back to Current Month
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-2 mb-4">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-primary" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Latest Profit</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(final_summary.profit) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-info" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Latest Commission</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(final_summary.commission) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-warning" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #000000;">Latest Earned from Rate</small>
+                <h4 style="color: #000000; margin: 0;">GHS {{ "%.2f"|format(final_summary.earned_from_rate) }}</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-2">
+        <div class="card bg-secondary" style="padding: 10px;">
+            <div class="card-body" style="padding: 8px;">
+                <small style="color: #ffffff;">Total Calculations</small>
+                <h4 style="color: #ffffff; margin: 0;">{{ calculations|length }}</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Calculation History Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0" style="color: #000000; font-size: 14px;">
+            <i class="fas fa-list"></i> Calculations - {{ selected_month_name }}
+            <span style="color: #666; font-size: 12px; font-weight: normal; margin-left: 10px;">
+                ({{ calculations|length }} record{{ 's' if calculations|length != 1 else '' }})
+            </span>
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if calculations %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date & Time</th>
+                            <th>Profit</th>
+                            <th>Commission</th>
+                            <th>Earned from Rate</th>
+                            <th>Avg Daily</th>
+                            <th>Projected</th>
+                            <th>USDT</th>
+                            <th>Rate</th>
+                            <th>eCash</th>
+                            <th>Lent</th>
+                            <th>Foreign</th>
+                            <th style="width: 60px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for calc in calculations %}
+                        <tr>
+                            <td style="color: #888;">#{{ loop.index }}</td>
+                            <td style="color: #ffffff; font-size: 12px; white-space: nowrap;">
+                                {{ calc.created_at.strftime('%b %d, %Y %I:%M %p') }}
+                            </td>
+                            <td style="color: #ff6b35; font-weight: bold; font-size: 14px;">
+                                GHS {{ "%.2f"|format(calc.profit) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.cashin_commission + calc.cashout_commission) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.profit - (calc.cashin_commission + calc.cashout_commission)) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.daily_average) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.projected_profit) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                ${{ "%.2f"|format(calc.total_usdt) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                {{ "%.2f"|format(calc.rate) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.ecash) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.lent_funds) }}
+                            </td>
+                            <td style="color: #ffffff; font-size: 13px;">
+                                GHS {{ "%.2f"|format(calc.foreign_funds) }}
+                            </td>
+                            <td>
+                                <!-- Three Dots Menu -->
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: #2a2a2a; border: none; color: #fff;">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu" style="background: #1a1a1a; border: 1px solid #ff6b35;">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('edit_calculation', id=calc.id) }}" style="color: #ff6b35; background: transparent;">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('delete_calculation', id=calc.id) }}" 
+                                                  onsubmit="return confirm('Delete this calculation from {{ calc.created_at.strftime('%B %d, %Y') }}? This cannot be undone.');">
+                                                <button type="submit" class="dropdown-item" style="color: #dc3545; background: transparent; border: none; width: 100%; text-align: left;">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-muted">No calculations found for {{ selected_month_name }}.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Note -->
+<div class="mt-3" style="background: #1a1a1a; padding: 12px; border-radius: 10px; border-left: 3px solid #ff6b35;">
+    <small style="color: #aaa;">
+        <i class="fas fa-info-circle" style="color: #ff6b35;"></i>
+        Each calculation record is <strong style="color: #ff6b35;">independent</strong>. 
+        The latest calculation shows your position at that point in time.
+    </small>
+</div>
+
+<script>
+    // Month selector functionality
+    document.getElementById('viewMonthBtn').addEventListener('click', function() {
+        const value = document.getElementById('monthSelector').value;
+        if (value) {
+            const [month, year] = value.split('-');
+            window.location.href = `?month=${month}&year=${year}`;
+        }
+    });
+</script>
+{% endblock %}
