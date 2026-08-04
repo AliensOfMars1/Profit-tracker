@@ -101,11 +101,7 @@
                             <th>Earned from Rate</th>
                             <th>Avg Daily</th>
                             <th>Projected</th>
-                            <th>USDT</th>
                             <th>Rate</th>
-                            <th>eCash</th>
-                            <th>Lent</th>
-                            <th>Foreign</th>
                             <th style="width: 60px;">Actions</th>
                         </tr>
                     </thead>
@@ -132,19 +128,7 @@
                                 GHS {{ "%.2f"|format(calc.projected_profit) }}
                             </td>
                             <td style="color: #ffffff; font-size: 13px;">
-                                ${{ "%.2f"|format(calc.total_usdt) }}
-                            </td>
-                            <td style="color: #ffffff; font-size: 13px;">
                                 {{ "%.2f"|format(calc.rate) }}
-                            </td>
-                            <td style="color: #ffffff; font-size: 13px;">
-                                GHS {{ "%.2f"|format(calc.ecash) }}
-                            </td>
-                            <td style="color: #ffffff; font-size: 13px;">
-                                GHS {{ "%.2f"|format(calc.lent_funds) }}
-                            </td>
-                            <td style="color: #ffffff; font-size: 13px;">
-                                GHS {{ "%.2f"|format(calc.foreign_funds) }}
                             </td>
                             <td>
                                 <!-- Three Dots Menu -->
